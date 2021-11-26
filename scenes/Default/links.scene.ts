@@ -9,10 +9,16 @@ import Text from "../../meshes/Text";
 
 export default {
   text: {
+    properties: {
+      position: new THREE.Vector3(0, 0, 15),
+      rotation: new THREE.Vector3(0, Math.PI, 0),
+    },
     object: async () => {
       return await Text({
-        text: "Hola",
+        text: "TEDx",
         path: "./fonts/Montserrat_Regular.json",
+        color: "#f00",
+        thickness: .5
       });
     },
   },

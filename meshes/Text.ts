@@ -8,15 +8,15 @@ interface Properties {
   text: string;
   path: string;
   size?: number;
-  height?: number;
+  thickness?: number;
   color?: string;
 }
 
 export default ({
   text,
   path,
-  size = 6,
-  height = 2,
+  size = 1,
+  thickness = 1,
   color = "#000",
 }: Properties): Promise<THREE.Mesh> => {
   return new Promise<THREE.Mesh>((resolve, reject) => {
@@ -26,7 +26,7 @@ export default ({
         const geometry = new TextGeometry(text, {
           font,
           size,
-          height,
+          height: thickness,
         });
         const textMesh = new THREE.Mesh(geometry, [
           new THREE.MeshStandardMaterial({ color }),
