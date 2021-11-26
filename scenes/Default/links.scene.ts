@@ -8,20 +8,6 @@ import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 
 export default {
-  text: {
-    properties: {
-      position: new THREE.Vector3(0, 0, 15),
-      rotation: new THREE.Vector3(0, Math.PI, 0),
-    },
-    object: async () => {
-      return await Text({
-        text: "TEDx",
-        path: "./fonts/Montserrat_Regular.json",
-        color: "#f00",
-        thickness: .5
-      });
-    },
-  },
   links: {
     properties: {
       position: {
@@ -33,24 +19,38 @@ export default {
       const distance = Object.entries(linkImages).length * 3;
       let index = 0;
 
-      for (const [redirect, imageURL] of Object.entries(linkImages)) {
+      for (const [name, urls] of Object.entries(linkImages)) {
+        const [redirect, imageURL] = urls;
         const image = await Image(imageURL, 10);
         const step =
           (++index / Object.entries(linkImages).length) * Math.PI * 2;
 
         image.position.x = Math.sin(step) * distance;
         image.position.z = Math.cos(step) * distance;
-
         image.name = redirect;
+
         image.lookAt(new THREE.Vector3(0, 0, 0));
 
         redirectObjects.add(image);
+
+        const text = await Text({
+          text: name,
+          path: "./fonts/Montserrat_Regular.json",
+          color: "#f00",
+          thickness: 0.5,
+          size: 0.5,
+        });
+
+        text.position.x = Math.sin(step) * (distance * 0.9);
+        text.position.z = Math.cos(step) * (distance * 0.9);
+        text.lookAt(new THREE.Vector3(0, 0, 0));
+
+        redirectObjects.add(text);
       }
 
       return redirectObjects;
     },
     onSetup(object: THREE.Group) {
-      console.log(object);
       object.children.forEach((child) => {
         events.onClickIntersectsObject([child], () => {
           window.open(child.name, "_blank");
