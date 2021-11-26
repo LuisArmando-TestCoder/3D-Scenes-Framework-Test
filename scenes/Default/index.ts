@@ -21,7 +21,12 @@ export default (id: string) =>
 
         actions.blacklistObjects({
           scene: scene as THREE.Scene,
-          blacklist: ["SimpleFloor", "SimpleCube", "SimpleSphere"],
+          blacklist: [
+            "SimpleFloor",
+            "SimpleCube",
+            "SimpleSphere",
+            "SimpleLightSet",
+          ],
         });
       },
     },

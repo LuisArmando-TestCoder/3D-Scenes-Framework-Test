@@ -7,6 +7,7 @@ import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 import Floor from "../../meshes/Floor";
+import PointLightSet from "../../meshes/PointLightSet";
 
 export default {
   links: {
@@ -83,7 +84,7 @@ export default {
             );
             mesh.lookAt(new THREE.Vector3(0, y, 0));
 
-            if (Math.random() > 0.5) {
+            if (Math.random() > 0.4) {
               return mesh;
             }
           },
@@ -97,29 +98,30 @@ export default {
       return consulters.getProceduralGroup([
         {
           geometry: new THREE.BoxBufferGeometry(0.25, 0.25, 0.25) as any,
-          material: new THREE.MeshStandardMaterial({
+          material: new THREE.MeshBasicMaterial({
             color: "#f00",
           }),
           getIntersectionMesh(indices, mesh) {
+            const size = 6;
             mesh.position.set(
-              Math.sin((indices[0] / 5) * Math.PI * 2) * Math.random() * 50,
-              (indices[1] - 2.5) * 10,
-              Math.cos((indices[2] / 5 + Math.random()) * Math.PI * 2) *
+              Math.sin((indices[0] / size) * Math.PI * 2) * Math.random() * 50,
+              indices[1] * 10,
+              Math.cos((indices[2] / size + Math.random()) * Math.PI * 2) *
                 Math.random() *
                 50
             );
 
             return mesh;
           },
-          dimensions: [5, 5, 5],
+          dimensions: [6, 6, 6],
         },
       ]);
     },
     onSetup(squares: THREE.Group) {
       squares.children.forEach((element: THREE.Object3D) => {
         gsap.timeline().to(element.position, {
-          y: element.position.y + Math.random() * 10,
-          duration: 10,
+          y: element.position.y + Math.random() * 20,
+          duration: 20,
         });
         events.onClickIntersectsObject([element], () => {
           gsap.timeline().to(element.rotation, {
@@ -151,6 +153,16 @@ export default {
       }),
     onSetup(object: THREE.Object3D) {
       object.rotateX(Math.PI / 2);
+    },
+  } as unknown as SceneObject,
+  lightSet: {
+    object: () => {
+      return PointLightSet([
+        {
+          position: new THREE.Vector3(0, 50, 0),
+          distance: 80,
+        }
+      ])
     },
   } as unknown as SceneObject,
 } as SceneObjects;
