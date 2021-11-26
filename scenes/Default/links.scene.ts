@@ -5,8 +5,17 @@ import gsap from "gsap";
 
 import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
+import Text from "../../meshes/Text";
 
 export default {
+  text: {
+    object: async () => {
+      return await Text({
+        text: "Hola",
+        path: "./fonts/Montserrat_Regular.json",
+      });
+    },
+  },
   links: {
     properties: {
       position: {
@@ -19,7 +28,7 @@ export default {
       let index = 0;
 
       for (const [redirect, imageURL] of Object.entries(linkImages)) {
-        const image = await Image(imageURL, 5);
+        const image = await Image(imageURL, 10);
         const step =
           (++index / Object.entries(linkImages).length) * Math.PI * 2;
 
@@ -29,7 +38,6 @@ export default {
         image.name = redirect;
         image.lookAt(new THREE.Vector3(0, 0, 0));
 
-        console.log("image.position.x", image.position.x);
         redirectObjects.add(image);
       }
 
@@ -53,21 +61,21 @@ export default {
             color: "#aaa",
           }),
           getIntersectionMesh(indices, mesh) {
-            const step = indices[1] / 60 * Math.PI * 2
-            const size = 10
-            const y = (indices[0] - 30) * size
+            const step = (indices[1] / 60) * Math.PI * 2;
+            const size = 10;
+            const y = (indices[0] - 50) * size;
             mesh.position.set(
               Math.sin(step) * (30 / Math.PI) * size,
               y,
               Math.cos(step) * (30 / Math.PI) * size
             );
-            mesh.lookAt(new THREE.Vector3(0, y, 0))
+            mesh.lookAt(new THREE.Vector3(0, y, 0));
 
             if (Math.random() > 0.5) {
               return mesh;
             }
           },
-          dimensions: [60, 60],
+          dimensions: [100, 60],
         },
       ]);
     },
