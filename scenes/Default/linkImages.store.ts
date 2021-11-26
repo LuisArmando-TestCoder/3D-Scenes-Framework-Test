@@ -5,7 +5,7 @@ export default {
   ],
   Wattpad: [
     "https://www.wattpad.com/user/Odoriens",
-    "https://images.pexels.com/photos/1274260/pexels-photo-1274260.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+    "https://images.pexels.com/photos/1743400/pexels-photo-1743400.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
   ],
   Instagram: [
     "https://www.instagram.com/latestcoder/",
@@ -21,7 +21,7 @@ export default {
   ],
   Portfolio: [
     "http://testcoder.netlify.com/",
-    "https://images.pexels.com/photos/1830252/pexels-photo-1830252.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+    "https://images.pexels.com/photos/3052361/pexels-photo-3052361.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
   ],
   Shadertoy: [
     "https://www.shadertoy.com/user/TestCoder",
