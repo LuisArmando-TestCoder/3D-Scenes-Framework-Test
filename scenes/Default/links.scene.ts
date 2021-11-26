@@ -6,6 +6,7 @@ import gsap from "gsap";
 import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
+import Floor from "../../meshes/Floor";
 
 export default {
   links: {
@@ -22,8 +23,8 @@ export default {
       for (const [name, urls] of Object.entries(linkImages)) {
         const [redirect, imageURL] = urls;
         const image = await Image(imageURL, 10);
-        const step =
-          (++index / Object.entries(linkImages).length) * Math.PI * 2;
+        const step = (++index / Object.entries(linkImages).length) * Math.PI + Math.PI * 1.5;
+        // Math.PI * 2 for full circle
 
         image.position.x = Math.sin(step) * distance;
         image.position.z = Math.cos(step) * distance;
@@ -37,12 +38,12 @@ export default {
           text: name,
           path: "./fonts/Montserrat_Regular.json",
           color: "#f00",
-          thickness: 0.5,
+          thickness: 0.1,
           size: 0.5,
         });
 
-        text.position.x = Math.sin(step) * (distance * 0.9);
-        text.position.z = Math.cos(step) * (distance * 0.9);
+        text.position.x = Math.sin(step) * (distance * 0.99);
+        text.position.z = Math.cos(step) * (distance * 0.99);
         text.lookAt(new THREE.Vector3(0, 0, 0));
 
         redirectObjects.add(text);
@@ -124,6 +125,27 @@ export default {
           });
         });
       });
+    },
+  } as unknown as SceneObject,
+  floor: {
+    properties: {
+      position: new THREE.Vector3(0, -5, 0),
+    },
+    object: () =>
+      Floor({
+        size: new THREE.Vector2(2000, 2000),
+        multiplyScalar: 100,
+        textureName: "mahogfloor-bl",
+        maps: {
+          baseColor: "mahogfloor_basecolor",
+          normal: "mahogfloor_normal",
+          roughness: "mahogfloor_roughness",
+          ao: "mahogfloor_AO",
+          bump: "mahogfloor_Height",
+        },
+      }),
+    onSetup(object: THREE.Object3D) {
+      object.rotateX(Math.PI / 2);
     },
   } as unknown as SceneObject,
 } as SceneObjects;
