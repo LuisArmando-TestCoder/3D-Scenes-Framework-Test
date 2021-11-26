@@ -23,7 +23,9 @@ export default {
       for (const [name, urls] of Object.entries(linkImages)) {
         const [redirect, imageURL] = urls;
         const image = await Image(imageURL, 10);
-        const step = (++index / Object.entries(linkImages).length) * Math.PI + Math.PI * 1.5;
+        const step =
+          (++index / Object.entries(linkImages).length) * Math.PI +
+          Math.PI * 1.5;
         // Math.PI * 2 for full circle
         // + Math.PI * 1.5 so it starts in front of first view
 
@@ -45,6 +47,8 @@ export default {
 
         text.position.x = Math.sin(step) * (distance * 0.99);
         text.position.z = Math.cos(step) * (distance * 0.99);
+        text.name = redirect;
+
         text.lookAt(new THREE.Vector3(0, 0, 0));
 
         redirectObjects.add(text);
