@@ -10,16 +10,21 @@ export default function (
   textureLoader.crossOrigin = "anonymous";
   imageLoader.crossOrigin = "anonymous";
 
-  return new Promise((resolve) => {
-    imageLoader.load(url, (image) => {
-      const aspectRatio = image.width / image.height;
-      const geometry = new THREE.PlaneGeometry(aspectRatio * scale, scale);
-      const material = new THREE.MeshStandardMaterial({
-        map: textureLoader.load(url),
-        side: THREE.DoubleSide,
-      });
+  return new Promise((resolve, reject) => {
+    imageLoader.load(
+      url,
+      (image) => {
+        const aspectRatio = image.width / image.height;
+        const geometry = new THREE.PlaneGeometry(aspectRatio * scale, scale);
+        const material = new THREE.MeshStandardMaterial({
+          map: textureLoader.load(url),
+          side: THREE.DoubleSide,
+        });
 
-      resolve(new THREE.Mesh(geometry, material));
-    });
+        resolve(new THREE.Mesh(geometry, material));
+      },
+      undefined,
+      reject
+    );
   });
 }

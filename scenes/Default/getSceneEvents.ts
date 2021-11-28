@@ -8,7 +8,11 @@ export type SceneObject = {
     rotation?: THREE.Vector3;
     scale?: THREE.Vector3;
   };
-  object?: () => Promise<Object3D> | Object3D;
+  object?: () =>
+    | Promise<Object3D>
+    | Object3D
+    | Promise<Object3D>[]
+    | Object3D[];
   onAnimation?: (object: Object3D, canvasState: CanvasState) => {};
   onSetup?: (object: Object3D, canvasState: CanvasState) => {};
 };
@@ -16,45 +20,81 @@ export type SceneObjects = {
   [index: string]: SceneObject;
 };
 
+async function getArrayGroup(
+  objects: (Object3D | Promise<Object3D>)[],
+  key: string,
+): Promise<THREE.Group> {
+  const group = new THREE.Group();
+
+  for (const [index, innerObject] of Object.entries(objects)) {
+    let child: Object3D = innerObject as Object3D;
+
+    if (typeof (innerObject as Promise<Object3D>)?.then === "function") {
+      try {
+        child = await innerObject;
+      } catch {
+        throw `Error on object ${key}, on child with index ${index}`;
+      }
+    }
+
+    if (child instanceof THREE.Object3D) {
+      group.add(child);
+    }
+  }
+
+  return group;
+}
+
+function setObjectVectors(object: Object3D, sceneObject: SceneObject) {
+  (["position", "scale", "rotation"] as const).forEach((property) => {
+    const defaultValue = property === "scale" ? 1 : 0;
+    const getAxis = (axisName: "x" | "y" | "z") =>
+      (sceneObject.properties?.[property]?.[axisName] as number) ||
+      defaultValue;
+
+    object[property].set(getAxis("x"), getAxis("y"), getAxis("z"));
+  });
+}
+
 export default async (sceneObjects: SceneObjects) => {
   const sceneGroup = new THREE.Group();
+  console.log(sceneGroup, sceneObjects);
 
   const objectRequests = Object.keys(sceneObjects).map(async (key: string) => {
     const sceneObject: SceneObject = sceneObjects[key];
-    let object: Object3D = new THREE.Object3D();
+    let retrievedObject;
 
-    // assign bare object
-    const retrievedObject = sceneObject?.object?.();
-
-    if (retrievedObject instanceof THREE.Object3D) {
-      object = retrievedObject;
+    try {
+      retrievedObject = sceneObject?.object?.();
+    } catch {
+      throw `Error on object ${key}`;
     }
 
-    // Assign object as a promise
+    let object: Object3D = retrievedObject as Object3D;
+
     const promisedObject = retrievedObject as Promise<Object3D>;
 
     if (typeof promisedObject?.then === "function") {
-      object = await promisedObject;
+      try {
+        object = await promisedObject;
+      } catch {
+        throw `Error on promised object ${key}`;
+      }
     }
 
+    if (Array.isArray(object)) {
+      object = await getArrayGroup(object, key);
+    }
     // assign object main vectors
-    (["position", "scale", "rotation"] as const).forEach((property) => {
-      const defaultValue = property === "scale" ? 1 : 0;
-
-      object[property].set(
-        (sceneObject.properties?.[property]?.x as number) || defaultValue,
-        (sceneObject.properties?.[property]?.y as number) || defaultValue,
-        (sceneObject.properties?.[property]?.z as number) || defaultValue
-      );
-    });
+    setObjectVectors(object, sceneObject);
 
     object.name = key;
 
     return object;
   });
 
-  (await Promise.all(objectRequests)).forEach((object) => {
-    sceneGroup.add(object);
+  (await Promise.all(objectRequests.filter((x) => x))).forEach((object) => {
+    object && sceneGroup.add(object);
   });
 
   const executeObjectsEvents = (

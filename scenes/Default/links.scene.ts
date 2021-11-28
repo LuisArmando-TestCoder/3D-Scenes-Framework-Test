@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { events, actions, consulters } from "scene-preset";
+import { CanvasState } from "scene-preset/lib/types/state";
 import { SceneObject, SceneObjects } from "./getSceneEvents";
 import gsap from "gsap";
 
@@ -8,12 +9,27 @@ import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 import Floor from "../../meshes/Floor";
 import PointLightSet from "../../meshes/PointLightSet";
+import Model from "../../meshes/Model";
 
 export default {
+  discoPlanet: {
+    properties: {
+      // Set the group props to fit a 1,1,1 cube in 0,0,0 position
+      scale: new THREE.Vector3(0.01, 0.01, 0.01),
+    },
+    object: () => [
+      // Model("/models/disco_ball/scene.gltf"),
+      new THREE.Mesh(
+        new THREE.RingBufferGeometry(1, 1.5, 10),
+        new THREE.MeshBasicMaterial({ color: "#fff" })
+      ),
+    ],
+  } as unknown as SceneObject,
   links: {
     properties: {
       position: {
-        y: 2,
+        y: 5,
+        z: 10,
       },
     },
     object: async () => {
@@ -21,41 +37,45 @@ export default {
       const distance = Object.entries(linkImages).length * 3;
       let index = 0;
 
-      for (const [name, urls] of Object.entries(linkImages)) {
-        const [redirect, imageURL] = urls;
-        const image = await Image(imageURL, 10);
-        const step =
-          (++index / Object.entries(linkImages).length) * Math.PI +
-          Math.PI * 1.5;
-        // Math.PI * 2 for full circle
-        // + Math.PI * 1.5 so it starts in front of first view
+      try {
+        for (const [name, urls] of Object.entries(linkImages)) {
+          const [redirect, imageURL] = urls;
+          const image = await Image(imageURL, 10);
+          const step =
+            (++index / Object.entries(linkImages).length) * Math.PI +
+            Math.PI * 1.45;
+          // Math.PI * 2 for full circle
+          // + Math.PI * 1.5 so it starts in front of first view
 
-        image.position.x = Math.sin(step) * distance;
-        image.position.z = Math.cos(step) * distance;
-        image.name = redirect;
+          image.position.x = Math.sin(step) * distance;
+          image.position.z = Math.cos(step) * distance;
+          image.name = redirect;
 
-        image.lookAt(new THREE.Vector3(0, 0, 0));
+          image.lookAt(new THREE.Vector3(0, 0, 0));
 
-        redirectObjects.add(image);
+          redirectObjects.add(image);
 
-        const text = await Text({
-          text: name,
-          path: "./fonts/Montserrat_Regular.json",
-          color: "#f00",
-          thickness: 0.1,
-          size: 0.5,
-        });
+          const text = await Text({
+            text: name,
+            path: "./fonts/Montserrat_Regular.json",
+            color: "#f00",
+            thickness: 0.1,
+            size: 0.5,
+          });
 
-        text.position.x = Math.sin(step) * (distance * 0.99);
-        text.position.z = Math.cos(step) * (distance * 0.99);
-        text.name = redirect;
+          text.position.x = Math.sin(step) * (distance * 0.99);
+          text.position.z = Math.cos(step) * (distance * 0.99);
+          text.name = redirect;
 
-        text.lookAt(new THREE.Vector3(0, 0, 0));
+          text.lookAt(new THREE.Vector3(0, 0, 0));
 
-        redirectObjects.add(text);
+          redirectObjects.add(text);
+        }
+
+        return redirectObjects;
+      } catch (error) {
+        throw error;
       }
-
-      return redirectObjects;
     },
     onSetup(object: THREE.Group) {
       object.children.forEach((child) => {
@@ -84,7 +104,7 @@ export default {
             );
             mesh.lookAt(new THREE.Vector3(0, y, 0));
 
-            if (Math.random() > 0.4) {
+            if (Math.random() < 0.75) {
               return mesh;
             }
           },
@@ -102,7 +122,7 @@ export default {
             color: "#f00",
           }),
           getIntersectionMesh(indices, mesh) {
-            const size = 6;
+            const size = 5;
             mesh.position.set(
               Math.sin((indices[0] / size) * Math.PI * 2) * Math.random() * 50,
               indices[1] * 10,
@@ -113,7 +133,7 @@ export default {
 
             return mesh;
           },
-          dimensions: [6, 6, 6],
+          dimensions: [5, 5, 5],
         },
       ]);
     },
@@ -159,10 +179,23 @@ export default {
     object: () => {
       return PointLightSet([
         {
-          position: new THREE.Vector3(0, 50, 0),
-          distance: 80,
-        }
-      ])
+          position: new THREE.Vector3(0, 2, 0),
+          distance: 50,
+          intensity: 3,
+        },
+        {
+          position: new THREE.Vector3(0, 15, 0),
+          distance: 50,
+          intensity: 3,
+        },
+      ]);
+    },
+    onAnimation: (object: THREE.Object3D, canvasState: CanvasState) => {
+      object.children[0].position.set(
+        canvasState.camera?.position.x as number,
+        canvasState.camera?.position.y as number,
+        canvasState.camera?.position.z as number
+      );
     },
   } as unknown as SceneObject,
 } as SceneObjects;

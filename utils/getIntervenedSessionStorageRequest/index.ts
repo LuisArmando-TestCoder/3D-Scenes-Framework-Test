@@ -1,23 +1,20 @@
-import { getWindow } from 'ssr-window'
+import { getWindow } from "ssr-window";
 
-export default async url => {
-    const data = getWindow().sessionStorage?.getItem(url)
+export default async (url: string) => {
+  const data = getWindow().sessionStorage?.getItem(url);
 
-    if (data) {
-        try {
-            return JSON.parse(data)
-        } catch {
-            return
-        }
+  if (data) {
+    try {
+      return JSON.parse(data);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    const blob = await fetch(url)
-    const json = await blob.json()
+  const blob = await fetch(url);
+  const json = await blob.json();
 
-    getWindow().sessionStorage?.setItem(
-        url,
-        JSON.stringify(json)
-    )
+  getWindow().sessionStorage?.setItem(url, JSON.stringify(json));
 
-    return json
-}
+  return json;
+};

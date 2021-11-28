@@ -1,26 +1,24 @@
-import presetScene, { consulters, actions, events } from "scene-preset";
-import { CanvasState } from "scene-preset/lib/state/canvases";
-import gsap from "gsap";
+import presetScene, { actions } from "scene-preset";
 import * as THREE from "three";
-import Image from "../../meshes/Image";
 import getSceneEvents from "./getSceneEvents";
 import linksScene from "./links.scene";
+
+const sceneEvents = getSceneEvents(linksScene);
 
 export default (id: string) =>
   presetScene(
     {
       async setup(canvasState) {
-        const sceneEvents = await getSceneEvents(linksScene);
-
-        sceneEvents.onSetup(canvasState);
+        (await sceneEvents).onSetup(canvasState);
       },
-      animate({ scene, presetConfiguration }) {
-        const { cameraVectorsState } = presetConfiguration.camera;
+      async animate(canvasState) {
+        (await sceneEvents).onAnimation(canvasState);
 
+        const { cameraVectorsState } = canvasState.presetConfiguration.camera;
         cameraVectorsState.position.min.y = -Infinity;
 
         actions.blacklistObjects({
-          scene: scene as THREE.Scene,
+          scene: canvasState.scene as THREE.Scene,
           blacklist: [
             "SimpleFloor",
             "SimpleCube",
