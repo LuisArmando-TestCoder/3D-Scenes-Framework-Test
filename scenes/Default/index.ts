@@ -1,5 +1,6 @@
 import presetScene, { actions } from "scene-preset";
 import * as THREE from "three";
+import rainbowMaterial from "../../materials/rainbow";
 import getSceneEvents from "./getSceneEvents";
 import linksScene from "./links.scene";
 
@@ -10,6 +11,8 @@ export default (id: string) =>
     {
       async setup(canvasState) {
         (await sceneEvents).onSetup(canvasState);
+
+        actions.setUniforms(rainbowMaterial);
       },
       async animate(canvasState) {
         (await sceneEvents).onAnimation(canvasState);

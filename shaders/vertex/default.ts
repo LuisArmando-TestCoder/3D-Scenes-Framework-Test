@@ -7,4 +7,4 @@ void main() {
     fragCoord = position;
     gl_Position = projectionMatrix * modelViewPosition; 
 }
-`
+`;

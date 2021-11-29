@@ -58,8 +58,6 @@ function setObjectVectors(object: Object3D, sceneObject: SceneObject) {
 
 export default async (sceneObjects: SceneObjects) => {
   const sceneGroup = new THREE.Group();
-  console.log(sceneGroup, sceneObjects);
-
   const objectRequests = Object.keys(sceneObjects).map(async (key: string) => {
     const sceneObject: SceneObject = sceneObjects[key];
     let retrievedObject;

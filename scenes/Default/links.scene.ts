@@ -1,34 +1,61 @@
 import * as THREE from "three";
-import { events, actions, consulters } from "scene-preset";
+import { events, consulters } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
 import { SceneObject, SceneObjects } from "./getSceneEvents";
+import rainbowMaterial from "../../materials/rainbow";
 import gsap from "gsap";
 
 import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
-import Floor from "../../meshes/Floor";
 import PointLightSet from "../../meshes/PointLightSet";
-import Model from "../../meshes/Model";
 
 export default {
   discoPlanet: {
     properties: {
-      // Set the group props to fit a 1,1,1 cube in 0,0,0 position
-      scale: new THREE.Vector3(0.01, 0.01, 0.01),
+      position: new THREE.Vector3(0, 200, 0),
     },
-    object: () => [
-      // Model("/models/disco_ball/scene.gltf"),
-      new THREE.Mesh(
-        new THREE.RingBufferGeometry(1, 1.5, 10),
-        new THREE.MeshBasicMaterial({ color: "#fff" })
-      ),
-    ],
+    object: () =>
+      consulters.getProceduralGroup([
+        {
+          geometry: new THREE.TorusBufferGeometry(1, .1, 3, 100),
+          material: rainbowMaterial,
+          dimensions: [250],
+          getIntersectionMesh([index], mesh) {
+            const size = 250;
+            const rescale = 15;
+            const step = (index / size - .5) * Math.PI * 2
+            const scaleY1 = Math.cos(step) * rescale;
+            const scaleY2 = Math.sin(step) * rescale;
+
+            mesh.position.y = scaleY1;
+            mesh.scale.set(scaleY2, scaleY2, 0);
+            mesh.rotateX(Math.PI / 2);
+
+            return mesh;
+          },
+        },
+        {
+          geometry: new THREE.TorusBufferGeometry(10, .1, 10, 100),
+          material: rainbowMaterial,
+          dimensions: [3],
+          getIntersectionMesh([index], mesh) {
+            const size = 3;
+            const rescale = 1.5;
+            const step = (index / size - .5) * Math.PI * 2
+            const scaleY2 = Math.sin(step) * rescale;
+
+            mesh.scale.set(3.5 + scaleY2, 3.5 + scaleY2, 1);
+            mesh.rotateX(Math.PI / 2);
+
+            return mesh;
+          },
+        },
+      ]),
   } as unknown as SceneObject,
   links: {
     properties: {
       position: {
-        y: 5,
         z: 10,
       },
     },
@@ -37,45 +64,41 @@ export default {
       const distance = Object.entries(linkImages).length * 3;
       let index = 0;
 
-      try {
-        for (const [name, urls] of Object.entries(linkImages)) {
-          const [redirect, imageURL] = urls;
-          const image = await Image(imageURL, 10);
-          const step =
-            (++index / Object.entries(linkImages).length) * Math.PI +
-            Math.PI * 1.45;
-          // Math.PI * 2 for full circle
-          // + Math.PI * 1.5 so it starts in front of first view
+      for (const [name, urls] of Object.entries(linkImages)) {
+        const [redirect, imageURL] = urls;
+        const image = await Image(imageURL, 10);
+        const step =
+          (++index / Object.entries(linkImages).length) * Math.PI +
+          Math.PI * 1.45;
+        // Math.PI * 2 for full circle
+        // + Math.PI * 1.5 so it starts in front of first view
 
-          image.position.x = Math.sin(step) * distance;
-          image.position.z = Math.cos(step) * distance;
-          image.name = redirect;
+        image.position.x = Math.sin(step) * distance;
+        image.position.z = Math.cos(step) * distance;
+        image.name = redirect;
 
-          image.lookAt(new THREE.Vector3(0, 0, 0));
+        image.lookAt(new THREE.Vector3(0, 0, 0));
 
-          redirectObjects.add(image);
+        redirectObjects.add(image);
 
-          const text = await Text({
-            text: name,
-            path: "./fonts/Montserrat_Regular.json",
-            color: "#f00",
-            thickness: 0.1,
-            size: 0.5,
-          });
+        const text = await Text({
+          text: name,
+          path: "./fonts/Montserrat_Regular.json",
+          color: "#f00",
+          thickness: 0.1,
+          size: 0.5,
+        });
 
-          text.position.x = Math.sin(step) * (distance * 0.99);
-          text.position.z = Math.cos(step) * (distance * 0.99);
-          text.name = redirect;
+        text.position.x = Math.sin(step) * (distance * 0.99);
+        text.position.z = Math.cos(step) * (distance * 0.99);
+        text.name = redirect;
 
-          text.lookAt(new THREE.Vector3(0, 0, 0));
+        text.lookAt(new THREE.Vector3(0, 0, 0));
 
-          redirectObjects.add(text);
-        }
-
-        return redirectObjects;
-      } catch (error) {
-        throw error;
+        redirectObjects.add(text);
       }
+
+      return redirectObjects;
     },
     onSetup(object: THREE.Group) {
       object.children.forEach((child) => {
@@ -86,8 +109,8 @@ export default {
     },
   } as unknown as SceneObject,
   tunnelSquares: {
-    object: () => {
-      return consulters.getProceduralGroup([
+    object: () =>
+      consulters.getProceduralGroup([
         {
           geometry: new THREE.BoxBufferGeometry(10, 10, 10),
           material: new THREE.MeshStandardMaterial({
@@ -110,12 +133,11 @@ export default {
           },
           dimensions: [100, 60],
         },
-      ]);
-    },
+      ]),
   } as unknown as SceneObject,
   floatingSquares: {
-    object: () => {
-      return consulters.getProceduralGroup([
+    object: () =>
+      consulters.getProceduralGroup([
         {
           geometry: new THREE.BoxBufferGeometry(0.25, 0.25, 0.25) as any,
           material: new THREE.MeshBasicMaterial({
@@ -135,8 +157,7 @@ export default {
           },
           dimensions: [5, 5, 5],
         },
-      ]);
-    },
+      ]),
     onSetup(squares: THREE.Group) {
       squares.children.forEach((element: THREE.Object3D) => {
         gsap.timeline().to(element.position, {
@@ -154,30 +175,30 @@ export default {
       });
     },
   } as unknown as SceneObject,
-  floor: {
-    properties: {
-      position: new THREE.Vector3(0, -5, 0),
-    },
-    object: () =>
-      Floor({
-        size: new THREE.Vector2(2000, 2000),
-        multiplyScalar: 100,
-        textureName: "mahogfloor-bl",
-        maps: {
-          baseColor: "mahogfloor_basecolor",
-          normal: "mahogfloor_normal",
-          roughness: "mahogfloor_roughness",
-          ao: "mahogfloor_AO",
-          bump: "mahogfloor_Height",
-        },
-      }),
-    onSetup(object: THREE.Object3D) {
-      object.rotateX(Math.PI / 2);
-    },
-  } as unknown as SceneObject,
+  // floor: {
+  //   properties: {
+  //     position: new THREE.Vector3(0, -5, 0),
+  //   },
+  //   object: () =>
+  //     Floor({
+  //       size: new THREE.Vector2(2000, 2000),
+  //       multiplyScalar: 100,
+  //       textureName: "mahogfloor-bl",
+  //       maps: {
+  //         baseColor: "mahogfloor_basecolor",
+  //         normal: "mahogfloor_normal",
+  //         roughness: "mahogfloor_roughness",
+  //         ao: "mahogfloor_AO",
+  //         bump: "mahogfloor_Height",
+  //       },
+  //     }),
+  //   onSetup(object: THREE.Object3D) {
+  //     object.rotateX(Math.PI / 2);
+  //   },
+  // } as unknown as SceneObject,
   lightSet: {
-    object: () => {
-      return PointLightSet([
+    object: () =>
+      PointLightSet([
         {
           position: new THREE.Vector3(0, 2, 0),
           distance: 50,
@@ -188,8 +209,7 @@ export default {
           distance: 50,
           intensity: 3,
         },
-      ]);
-    },
+      ]),
     onAnimation: (object: THREE.Object3D, canvasState: CanvasState) => {
       object.children[0].position.set(
         canvasState.camera?.position.x as number,
