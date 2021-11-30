@@ -145,7 +145,7 @@ export default {
       ];
     },
     onSetup({ object3D }: SceneExport) {
-      object3D.children.forEach((child) => {
+      object3D.children[0].children.forEach((child) => {
         events.onClickIntersectsObject([child], () => {
           window.open(child.name, "_blank");
         });
