@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 export default (
   path: string
 ): Promise<{
-  model: THREE.Group;
+  object3D: THREE.Group;
   animations: Map<string, THREE.AnimationAction>;
 }> => {
   return new Promise((resolve, reject) => {
@@ -25,7 +25,7 @@ export default (
           animations.set(a.name, mixer.clipAction(a));
         });
 
-        resolve({ model, animations });
+        resolve({ object3D: model, animations });
       },
       undefined,
       reject

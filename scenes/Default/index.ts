@@ -1,10 +1,10 @@
 import presetScene, { actions } from "scene-preset";
 import * as THREE from "three";
 import rainbowMaterial from "../../materials/rainbow";
-import getSceneEvents from "./getSceneEvents";
+import getSceneLifeCycle from "./getSceneLifeCycle";
 import linksScene from "./links.scene";
 
-const sceneEvents = getSceneEvents(linksScene);
+const sceneEvents = getSceneLifeCycle(linksScene);
 
 export default (id: string) =>
   presetScene(

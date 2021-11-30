@@ -1,17 +1,44 @@
 import * as THREE from "three";
 import { events, consulters } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
-import { SceneObject, SceneObjects } from "./getSceneEvents";
+import { Scene, Scenes, SceneExport } from "./getSceneLifeCycle";
 import rainbowMaterial from "../../materials/rainbow";
 import gsap from "gsap";
 
 import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
+import Model from "../../meshes/Model";
 import getTextureMaterial from "../../materials/getTextureMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 
 export default {
+  discoModel: {
+    properties: {
+      position: new THREE.Vector3(0, 20, 0),
+      scale: new THREE.Vector3(0.05, 0.05, 0.05),
+    },
+    object: async () => await Model("./models/disco_ball/scene.gltf"),
+    onAnimation({object3D}: SceneExport) {
+      object3D.rotation.y += .01;
+    }
+  } as unknown as Scene,
+  poem: {
+    properties: {
+      position: new THREE.Vector3(5, 3, 20),
+      rotation: new THREE.Vector3(0, Math.PI, 0),
+    },
+    object: async () =>
+      await Text({
+        text: `Hello,
+      
+        it's been quite long`,
+        path: "./fonts/Montserrat_Regular.json",
+        color: "#f00",
+        thickness: 0.1,
+        size: 0.5,
+      }),
+  } as unknown as Scene,
   discoPlanet: {
     properties: {
       position: new THREE.Vector3(0, 200, 0),
@@ -62,7 +89,7 @@ export default {
         },
       ]),
     ],
-  } as unknown as SceneObject,
+  } as unknown as Scene,
   links: {
     properties: {
       position: new THREE.Vector3(0, 0, 25),
@@ -76,8 +103,7 @@ export default {
         const [redirect, imageURL] = urls;
         const image = await Image(imageURL, 10);
         const step =
-          (++index / Object.entries(linkImages).length) * Math.PI +
-          Math.PI * 1.45;
+          (++index / Object.entries(linkImages).length) * Math.PI * 2;
         // Math.PI * 2 for full circle
         // + Math.PI * 1.5 so it starts in front of first view
 
@@ -118,14 +144,14 @@ export default {
         ]),
       ];
     },
-    onSetup(object: THREE.Group) {
-      object.children.forEach((child) => {
+    onSetup({ object3D }: SceneExport) {
+      object3D.children.forEach((child) => {
         events.onClickIntersectsObject([child], () => {
           window.open(child.name, "_blank");
         });
       });
     },
-  } as unknown as SceneObject,
+  } as unknown as Scene,
   tunnelSquares: {
     object: () =>
       consulters.getProceduralGroup([
@@ -162,7 +188,7 @@ export default {
           dimensions: [100, 60],
         },
       ]),
-  } as unknown as SceneObject,
+  } as unknown as Scene,
   floatingSquares: {
     object: () =>
       consulters.getProceduralGroup([
@@ -186,8 +212,8 @@ export default {
           dimensions: [5, 5, 5],
         },
       ]),
-    onSetup(squares: THREE.Group) {
-      squares.children.forEach((element: THREE.Object3D) => {
+    onSetup({ object3D }: SceneExport) {
+      object3D.children.forEach((element: THREE.Object3D) => {
         gsap.timeline().to(element.position, {
           y: element.position.y + Math.random() * 20,
           duration: 20,
@@ -202,7 +228,7 @@ export default {
         });
       });
     },
-  } as unknown as SceneObject,
+  } as unknown as Scene,
   floor: {
     properties: {
       position: new THREE.Vector3(0, -6, 0),
@@ -221,10 +247,10 @@ export default {
           },
         })
       ),
-    onSetup(floor: THREE.Object3D) {
+    onSetup({ object3D: floor }: SceneExport) {
       floor.rotateX(Math.PI / 2);
     },
-  } as unknown as SceneObject,
+  } as unknown as Scene,
   lightFollower: {
     object: () =>
       PointLightSet([
@@ -235,12 +261,15 @@ export default {
           intensity: 1,
         },
       ]),
-    onAnimation: (object: THREE.Object3D, canvasState: CanvasState) => {
-      object.position.set(
+    onAnimation: (
+      { object3D }: SceneExport,
+      canvasState: CanvasState
+    ) => {
+      object3D.position.set(
         canvasState.camera?.position.x as number,
         canvasState.camera?.position.y as number,
         canvasState.camera?.position.z as number
       );
     },
-  } as unknown as SceneObject,
-} as SceneObjects;
+  } as unknown as Scene,
+} as Scenes;
