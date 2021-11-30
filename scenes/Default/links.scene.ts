@@ -15,7 +15,7 @@ import PointLightSet from "../../meshes/PointLightSet";
 export default {
   discoModel: {
     properties: {
-      position: new THREE.Vector3(0, 20, 0),
+      position: new THREE.Vector3(0, 10, 25),
       scale: new THREE.Vector3(0.05, 0.05, 0.05),
     },
     object: async () => await Model("./models/disco_ball/scene.gltf"),
@@ -257,7 +257,7 @@ export default {
         {
           color: "#f00",
           position: new THREE.Vector3(0, 2, 0),
-          distance: 25,
+          distance: 35,
           intensity: 1,
         },
       ]),
