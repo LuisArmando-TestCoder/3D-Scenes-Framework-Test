@@ -16,39 +16,33 @@ interface Maps {
   ao?: string;
   normal?: string;
   bump?: string;
+  metal?: string;
   baseColor: string;
 }
 
 /**
- * @param textureName /path/like/string
  *
  * Note: The texture image will be kept under a path like
- * /public/textures/[textureName]/[mapName].png
+ * [path]/[mapName].png
  *
  * @abstract
  * - Valid mapName: baseColor | normal | ao | roughness | bump
  */
 export default ({
-  textureName,
   maps,
-  repeatSet = new THREE.Vector2(3, 1),
-  multiplyScalar = 4,
-  size = new THREE.Vector2(100, 100),
+  repeatSet = new THREE.Vector2(1, 1),
+  multiplyScalar = 1,
 }: {
-  textureName: string;
   maps: Maps;
   repeatSet?: THREE.Vector2;
   multiplyScalar?: number;
-  size?: THREE.Vector2;
-}) => {
-  const getSrc = (name: string) => `./textures/${textureName}/${name}.png`;
-
-  const baseColorSrc = getSrc(maps.baseColor);
-  const normalSrc = maps.normal && getSrc(maps.normal);
-  const aoSrc = maps.ao && getSrc(maps.ao);
-  const roughnessSrc = maps.roughness && getSrc(maps.roughness);
-  const bumpSrc = maps.bump && getSrc(maps.bump);
-
+}): THREE.MeshStandardMaterial => {
+  const baseColorSrc = maps.baseColor;
+  const normalSrc = maps.normal;
+  const aoSrc = maps.ao;
+  const roughnessSrc = maps.roughness;
+  const bumpSrc = maps.bump;
+  const metalSrc = maps.metal;
   const map = loader.load(baseColorSrc);
 
   map.wrapS = map.wrapT = THREE.RepeatWrapping;
@@ -58,16 +52,16 @@ export default ({
   const aoMap = aoSrc && getMap(aoSrc, map);
   const roughnessMap = roughnessSrc && getMap(roughnessSrc, map);
   const bumpMap = bumpSrc && getMap(bumpSrc, map);
-
-  const geometry = new THREE.BoxGeometry(size.x, size.y, 1, 1);
+  const metalnessMap = metalSrc && getMap(metalSrc, map);
   const material = new THREE.MeshStandardMaterial({
+    side: THREE.DoubleSide,
     roughnessMap: roughnessMap as THREE.Texture,
     aoMap: aoMap as THREE.Texture,
     normalMap: normalMap as THREE.Texture,
     bumpMap: bumpMap as THREE.Texture,
+    metalnessMap: metalnessMap as THREE.Texture,
     map,
   });
-  const floor = new THREE.Mesh(geometry, material);
 
-  return floor;
+  return material;
 };

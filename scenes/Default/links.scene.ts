@@ -8,6 +8,7 @@ import gsap from "gsap";
 import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
+import getTextureMaterial from "../../materials/getTextureMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 
 export default {
@@ -15,16 +16,16 @@ export default {
     properties: {
       position: new THREE.Vector3(0, 200, 0),
     },
-    object: () =>
+    object: () => [
       consulters.getProceduralGroup([
         {
-          geometry: new THREE.TorusBufferGeometry(1, .1, 3, 100),
+          geometry: new THREE.TorusBufferGeometry(1, 0.1, 3, 100),
           material: rainbowMaterial,
           dimensions: [250],
           getIntersectionMesh([index], mesh) {
             const size = 250;
             const rescale = 15;
-            const step = (index / size - .5) * Math.PI * 2
+            const step = (index / size - 0.5) * Math.PI * 2;
             const scaleY1 = Math.cos(step) * rescale;
             const scaleY2 = Math.sin(step) * rescale;
 
@@ -36,13 +37,13 @@ export default {
           },
         },
         {
-          geometry: new THREE.TorusBufferGeometry(10, .1, 10, 100),
+          geometry: new THREE.TorusBufferGeometry(10, 0.1, 10, 100),
           material: rainbowMaterial,
           dimensions: [3],
           getIntersectionMesh([index], mesh) {
             const size = 3;
             const rescale = 1.5;
-            const step = (index / size - .5) * Math.PI * 2
+            const step = (index / size - 0.5) * Math.PI * 2;
             const scaleY2 = Math.sin(step) * rescale;
 
             mesh.scale.set(3.5 + scaleY2, 3.5 + scaleY2, 1);
@@ -52,12 +53,19 @@ export default {
           },
         },
       ]),
+      PointLightSet([
+        {
+          color: "#f00",
+          distance: 100,
+          intensity: 1,
+          decay: 2,
+        },
+      ]),
+    ],
   } as unknown as SceneObject,
   links: {
     properties: {
-      position: {
-        z: 10,
-      },
+      position: new THREE.Vector3(0, 0, 25),
     },
     object: async () => {
       const redirectObjects = new THREE.Group();
@@ -98,7 +106,17 @@ export default {
         redirectObjects.add(text);
       }
 
-      return redirectObjects;
+      return [
+        redirectObjects,
+        PointLightSet([
+          {
+            color: "#00f",
+            position: new THREE.Vector3(0, 15, 0),
+            distance: 50,
+            intensity: 1,
+          },
+        ]),
+      ];
     },
     onSetup(object: THREE.Group) {
       object.children.forEach((child) => {
@@ -113,8 +131,18 @@ export default {
       consulters.getProceduralGroup([
         {
           geometry: new THREE.BoxBufferGeometry(10, 10, 10),
-          material: new THREE.MeshStandardMaterial({
-            color: "#aaa",
+          material: getTextureMaterial({
+            maps: {
+              baseColor:
+                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_albedo.png",
+              normal:
+                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_normal-ogl.png",
+              roughness:
+                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_roughness.png",
+              ao: "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_ao.png",
+              metal:
+                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_metallic.png",
+            },
           }),
           getIntersectionMesh(indices, mesh) {
             const step = (indices[1] / 60) * Math.PI * 2;
@@ -175,43 +203,40 @@ export default {
       });
     },
   } as unknown as SceneObject,
-  // floor: {
-  //   properties: {
-  //     position: new THREE.Vector3(0, -5, 0),
-  //   },
-  //   object: () =>
-  //     Floor({
-  //       size: new THREE.Vector2(2000, 2000),
-  //       multiplyScalar: 100,
-  //       textureName: "mahogfloor-bl",
-  //       maps: {
-  //         baseColor: "mahogfloor_basecolor",
-  //         normal: "mahogfloor_normal",
-  //         roughness: "mahogfloor_roughness",
-  //         ao: "mahogfloor_AO",
-  //         bump: "mahogfloor_Height",
-  //       },
-  //     }),
-  //   onSetup(object: THREE.Object3D) {
-  //     object.rotateX(Math.PI / 2);
-  //   },
-  // } as unknown as SceneObject,
-  lightSet: {
+  floor: {
+    properties: {
+      position: new THREE.Vector3(0, -6, 0),
+    },
+    object: () =>
+      new THREE.Mesh(
+        new THREE.PlaneBufferGeometry(2000, 2000),
+        getTextureMaterial({
+          multiplyScalar: 300,
+          maps: {
+            baseColor: "./textures/mahogfloor-bl/mahogfloor_basecolor.png",
+            normal: "./textures/mahogfloor-bl/mahogfloor_normal.png",
+            roughness: "./textures/mahogfloor-bl/mahogfloor_roughness.png",
+            ao: "./textures/mahogfloor-bl/mahogfloor_AO.png",
+            bump: "./textures/mahogfloor-bl/mahogfloor_Height.png",
+          },
+        })
+      ),
+    onSetup(floor: THREE.Object3D) {
+      floor.rotateX(Math.PI / 2);
+    },
+  } as unknown as SceneObject,
+  lightFollower: {
     object: () =>
       PointLightSet([
         {
+          color: "#f00",
           position: new THREE.Vector3(0, 2, 0),
-          distance: 50,
-          intensity: 3,
-        },
-        {
-          position: new THREE.Vector3(0, 15, 0),
-          distance: 50,
-          intensity: 3,
+          distance: 25,
+          intensity: 1,
         },
       ]),
     onAnimation: (object: THREE.Object3D, canvasState: CanvasState) => {
-      object.children[0].position.set(
+      object.position.set(
         canvasState.camera?.position.x as number,
         canvasState.camera?.position.y as number,
         canvasState.camera?.position.z as number
