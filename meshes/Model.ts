@@ -13,6 +13,8 @@ export default (
       (gltf) => {
         const model = gltf.scene;
 
+        console.log('hey', model)
+
         model.traverse((object: THREE.Object3D<THREE.Event>) => {
           object.castShadow = true;
         });

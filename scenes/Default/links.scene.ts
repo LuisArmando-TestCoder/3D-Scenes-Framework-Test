@@ -15,10 +15,21 @@ import PointLightSet from "../../meshes/PointLightSet";
 export default {
   discoModel: {
     properties: {
-      position: new THREE.Vector3(0, 10, 25),
-      scale: new THREE.Vector3(0.05, 0.05, 0.05),
+      position: new THREE.Vector3(0, 25, 0),
+      scale: new THREE.Vector3(.03, .03, .03),
     },
     object: async () => await Model("./models/disco_ball/scene.gltf"),
+    onAnimation({object3D}: SceneExport) {
+      object3D.rotation.y += .01;
+    }
+  } as unknown as Scene,
+  discoStatue: {
+    properties: {
+      position: new THREE.Vector3(0, 100, 25),
+      scale: new THREE.Vector3(50, 50, 50),
+      rotation: new THREE.Vector3(Math.PI, 0, 0),
+    },
+    object: async () => await Model("./models/venus_de_disco/scene.gltf"),
     onAnimation({object3D}: SceneExport) {
       object3D.rotation.y += .01;
     }
@@ -104,8 +115,6 @@ export default {
         const image = await Image(imageURL, 10);
         const step =
           (++index / Object.entries(linkImages).length) * Math.PI * 2;
-        // Math.PI * 2 for full circle
-        // + Math.PI * 1.5 so it starts in front of first view
 
         image.position.x = Math.sin(step) * distance;
         image.position.z = Math.cos(step) * distance;
