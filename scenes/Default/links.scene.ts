@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { events, consulters } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
-import { Scene, Scenes, SceneExport } from "./getSceneLifeCycle";
+import { Scene, Scenes, SceneExport } from "scene-preset/lib/types/consulters";
 import rainbowMaterial from "../../materials/rainbow";
 import gsap from "gsap";
 
@@ -39,16 +39,23 @@ export default {
       position: new THREE.Vector3(5, 3, 20),
       rotation: new THREE.Vector3(0, Math.PI, 0),
     },
-    object: async () =>
-      await Text({
-        text: `Hello,
-      
-        it's been quite long`,
-        path: "./fonts/Montserrat_Regular.json",
-        color: "#f00",
-        thickness: 0.1,
-        size: 0.5,
-      }),
+    object: async () => ({
+      object3D: [
+        await Text({
+          text: `Hello,
+
+          it's been quite long`,
+          path: "./fonts/Montserrat_Regular.json",
+          color: "#f00",
+          thickness: 0.1,
+          size: 0.5,
+        })
+      ],
+      hi: 'you'
+    }),
+    onSetup({ hi, object3D }: SceneExport) {
+      console.log(hi, object3D)
+    }
   } as unknown as Scene,
   discoPlanet: {
     properties: {

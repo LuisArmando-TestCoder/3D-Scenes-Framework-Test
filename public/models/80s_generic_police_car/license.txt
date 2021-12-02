@@ -1,0 +1,11 @@
+Model Information:
+* title:	80s Generic police car - Low poly model
+* source:	https://sketchfab.com/3d-models/80s-generic-police-car-low-poly-model-61766c1e6e1e4b2b803c174f33433a74
+* author:	Daniel Zhabotinsky (https://sketchfab.com/DanielZhabotinsky)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "80s Generic police car - Low poly model" (https://sketchfab.com/3d-models/80s-generic-police-car-low-poly-model-61766c1e6e1e4b2b803c174f33433a74) by Daniel Zhabotinsky (https://sketchfab.com/DanielZhabotinsky) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

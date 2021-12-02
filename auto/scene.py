@@ -18,9 +18,11 @@ executeConditionalPath(
 
         "import presetScene, { actions } from 'scene-preset'\n\n" +
 
-        "export default id => presetScene({\n" +
+        "export default (id: string) => presetScene({\n" +
             "\tsetup({ scene }) {},\n" +
             "\tanimate({ scene }) {}\n" +
         "}, `#${id}`)"
     )
 )
+
+import modules.export
