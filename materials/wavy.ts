@@ -6,7 +6,6 @@ export default new THREE.ShaderMaterial({
   side: THREE.DoubleSide,
   transparent: true,
   blending: THREE.NormalBlending,
-  depthTest: false,
   fragmentShader,
   vertexShader,
 });

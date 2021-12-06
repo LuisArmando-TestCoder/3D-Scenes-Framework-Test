@@ -27,19 +27,19 @@ export default (id: string) =>
           wasRecording = !wasRecording;
         });
       },
-      async animate(canvasState) {
+      animate(canvasState) {
         const { cameraVectorsState } = canvasState.presetConfiguration.camera;
         cameraVectorsState.position.min.y = -Infinity;
 
-        actions.blacklistObjects({
-          scene: canvasState.scene as THREE.Scene,
-          blacklist: [
-            "SimpleFloor",
-            "SimpleCube",
-            "SimpleSphere",
-            "SimpleLightSet",
-          ],
-        });
+        // actions.blacklistObjects({
+        //   scene: canvasState.scene as THREE.Scene,
+        //   blacklist: [
+        //     "SimpleFloor",
+        //     "SimpleCube",
+        //     "SimpleSphere",
+        //     "SimpleLightSet",
+        //   ],
+        // });
       },
     },
     `#${id}`

@@ -5,6 +5,6 @@ void main() {
     vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
 
     fragCoord = position;
-    gl_Position = projectionMatrix * modelViewPosition; 
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
 }
 `;
