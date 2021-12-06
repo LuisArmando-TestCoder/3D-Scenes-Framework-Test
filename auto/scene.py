@@ -14,14 +14,74 @@ executeConditionalPath(
     f"{folderPath}/index.ts",
     lambda path: createFile(
         path,
-        "import * as THREE from 'three'\n\n" +
+        "import presetScene, { consulters } from \"scene-preset\";\n" +
+        "import scene from \"./scene\";\n" +
+        "\n" +
+        "const sceneEvents = consulters.getSceneLifeCycle(scene);\n" +
+        "\n" +
+        "export default (id: string) =>\n" +
+        "  presetScene(\n" +
+        "    {\n" +
+        "      async setup(canvasState) {\n" +
+        "        (await sceneEvents).onSetup(canvasState);\n" +
+        "      },\n" +
+        "      async animate(canvasState) {\n" +
+        "        (await sceneEvents).onAnimation(canvasState);\n" +
+        "      },\n" +
+        "    },\n" +
+        "    `#${id}`\n" +
+        "  );\n"
+    )
+)
 
-        "import presetScene, { actions } from 'scene-preset'\n\n" +
+executeConditionalPath(
+    f"{folderPath}/scene.ts",
+    lambda path: createFile(
+        path,
+        "import * as THREE from \"three\";\n" +
+        "import { events, consulters } from \"scene-preset\";\n" +
+        "import { CanvasState } from \"scene-preset/lib/types/state\";\n" +
+        "import { Scene, Scenes, SceneExport } from \"scene-preset/lib/types/consulters\";\n" +
+        "import rainbowMaterial from \"../../materials/rainbow\";\n" +
+        "import gsap from \"gsap\";\n" +
+        "\n" +
+        "import Image from \"../../meshes/Image\";\n" +
+        "import Text from \"../../meshes/Text\";\n" +
+        "import Model from \"../../meshes/Model\";\n" +
+        "import getTextureMaterial from \"../../materials/getTextureMaterial\";\n" +
+        "import PointLightSet from \"../../meshes/PointLightSet\";\n" +
+        "\n" +
+        "export default {\n" +
+        "  \n" +
+        "} as Scenes;\n"
+    )
+)
 
-        "export default (id: string) => presetScene({\n" +
-            "\tsetup({ scene }) {},\n" +
-            "\tanimate({ scene }) {}\n" +
-        "}, `#${id}`)"
+executeConditionalPath(
+    f"../pages/{sceneName.lower()}.tsx",
+    lambda path: createFile(
+        path,
+        "import Head from 'next/head'\n" +
+        "import * as Components from '../components'\n" +
+        "\n" +
+        "export default () => {\n" +
+        "    return (\n" +
+        "        <div>\n" +
+        "            <Head>\n" +
+        f"                <title>{sceneName} | Home for 3D experiments</title>\n" +
+        f"                <meta name=\"description\" content=\"{sceneName}\" />\n" +
+        "                <link rel=\"icon\" href=\"/favicon.ico\" />\n" +
+        "            </Head>\n" +
+        "            <Components.L1.Canvas3D\n" +
+        "                id={'" + sceneName + "'}\n" +
+        "                scenes={[\n" +
+        f"                    'Default',\n" +
+        f"                    '{sceneName}',\n" +
+        "                ]}\n" +
+        "            />\n" +
+        "        </div>\n" +
+        "    )\n" +
+        "}\n"
     )
 )
 

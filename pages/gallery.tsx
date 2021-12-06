@@ -14,7 +14,8 @@ export default () => {
             <Components.L1.Canvas3D
                 id={'Gallery'}
                 scenes={[
-                    'Gallery'
+                    'Default',
+                    'Gallery',
                 ]}
             />
         </div>

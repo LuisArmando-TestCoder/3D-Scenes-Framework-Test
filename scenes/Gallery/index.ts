@@ -1,14 +1,8 @@
-import presetScene, { actions, consulters, types } from "scene-preset";
+import presetScene, { actions, consulters } from "scene-preset";
 import * as THREE from "three";
-import galleryScene from "./gallery.scene";
+import scene from "./scene";
 
-actions.addSceneSetupIntrude((canvasState: types.state.CanvasState) => {
-  canvasState.presetConfiguration.ambient.color = 0x000000;
-  canvasState.presetConfiguration.camera.fov = 15;
-  canvasState?.camera?.["setFocalLength"](20);
-});
-
-const sceneEvents = consulters.getSceneLifeCycle(galleryScene);
+const sceneEvents = consulters.getSceneLifeCycle(scene);
 
 export default (id: string) =>
   presetScene(

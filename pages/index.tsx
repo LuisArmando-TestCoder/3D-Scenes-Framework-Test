@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
-// import Image from 'next/image'
 import * as Components from '../components'
 
 const Home: NextPage = () => {
@@ -11,12 +10,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Home for 3D experiments" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Components.L1.Canvas3D
-        id={'ShowCase'}
-        scenes={[
-          'Default'
-        ]}
-      />
+      {'Usa el server getter de next js para agarrar los nombres de todas las escenas (except default) y generar links'}
     </div>
   )
 }

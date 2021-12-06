@@ -11,7 +11,7 @@ export function getMap(src: string, originalMap: THREE.Texture) {
   return map;
 }
 
-interface Maps {
+export interface Maps {
   roughness?: string;
   ao?: string;
   normal?: string;
