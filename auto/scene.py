@@ -14,19 +14,26 @@ executeConditionalPath(
     f"{folderPath}/index.ts",
     lambda path: createFile(
         path,
-        "import presetScene, { consulters } from \"scene-preset\";\n" +
+        "import * as THREE from \"three\";\n" +
+        "import presetScene, { consulters, types } from \"scene-preset\";\n" +
         "import scene from \"./scene\";\n" +
         "\n" +
-        "const sceneEvents = consulters.getSceneLifeCycle(scene);\n" +
+        "let sceneEvents: {\n" +
+        "  sceneGroup: THREE.Group;\n" +
+        "  onSetup(canvasState: types.state.CanvasState): void;\n" +
+        "  onAnimation(canvasState: types.state.CanvasState): void;\n" +
+        "};\n" +
         "\n" +
         "export default (id: string) =>\n" +
         "  presetScene(\n" +
         "    {\n" +
         "      async setup(canvasState) {\n" +
-        "        (await sceneEvents).onSetup(canvasState);\n" +
+        "        sceneEvents = await consulters.getSceneLifeCycle(scene);\n" +
+        "\n" +
+        "        sceneEvents?.onSetup(canvasState);\n" +
         "      },\n" +
         "      async animate(canvasState) {\n" +
-        "        (await sceneEvents).onAnimation(canvasState);\n" +
+        "        sceneEvents?.onAnimation(canvasState);\n" +
         "      },\n" +
         "    },\n" +
         "    `#${id}`\n" +

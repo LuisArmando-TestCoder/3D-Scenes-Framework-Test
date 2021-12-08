@@ -104,7 +104,7 @@ export default {
           maps: getQuixelPathMaps({
             name: "Stone_Floor",
             code: "vglmadtg",
-            mapNames: ["Displacement", "Metalness", "AO"],
+            mapNames: ["Displacement", "AO"],
           }),
         })
       ),

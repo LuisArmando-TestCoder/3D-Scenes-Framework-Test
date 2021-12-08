@@ -53,7 +53,7 @@ export default {
             getIntersectionMesh([x, z], meshTemplate) {
               const group = new THREE.Group();
 
-              [0, 1].forEach(y => {
+              [0, 1].forEach((y) => {
                 const mesh = meshTemplate.clone();
                 const position = getPosition({ x, z });
 
@@ -91,12 +91,14 @@ export default {
       object3D.children
         .filter(({ name }) => name === hatchName)
         .forEach((child) => {
-          child.children.forEach((mesh, index) => {
-            const y = index - .5;
-            let toggleClose = false;
+          let toggleClose = false;
 
-            events.onClickIntersectsObject([mesh], () => {
-              toggleClose = !toggleClose;
+          events.onClickIntersectsObject([child], () => {
+            toggleClose = !toggleClose;
+
+            child.children.forEach((mesh, index) => {
+              const y = index - 0.5;
+
 
               gsap.timeline().to(mesh.position, {
                 y: -y * +toggleClose,

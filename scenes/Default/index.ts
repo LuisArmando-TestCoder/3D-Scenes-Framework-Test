@@ -31,15 +31,15 @@ export default (id: string) =>
         const { cameraVectorsState } = canvasState.presetConfiguration.camera;
         cameraVectorsState.position.min.y = -Infinity;
 
-        // actions.blacklistObjects({
-        //   scene: canvasState.scene as THREE.Scene,
-        //   blacklist: [
-        //     "SimpleFloor",
-        //     "SimpleCube",
-        //     "SimpleSphere",
-        //     "SimpleLightSet",
-        //   ],
-        // });
+        actions.blacklistObjects({
+          scene: canvasState.scene as THREE.Scene,
+          blacklist: [
+            "SimpleFloor",
+            "SimpleCube",
+            "SimpleSphere",
+            "SimpleLightSet",
+          ],
+        });
       },
     },
     `#${id}`
