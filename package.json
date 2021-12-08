@@ -16,7 +16,8 @@
     "recoil-outside": "^0.1.1",
     "sass": "^1.43.4",
     "scene-preset": "^2.2.3",
-    "ssr-window": "^4.0.1"
+    "ssr-window": "^4.0.1",
+    "victor": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "16.11.7",

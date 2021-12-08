@@ -1,3 +1,4 @@
+import Victor from "Victor";
 import * as THREE from "three";
 import { events, consulters } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
@@ -10,7 +11,10 @@ import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 import Model from "../../meshes/Model";
 import getTextureMaterial from "../../materials/getTextureMaterial";
+import getQuixelMaterial from "../../materials/getQuixelMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
+
+let lastOpenedState = false;
 
 export default {
   lightFollower: {
@@ -33,13 +37,13 @@ export default {
   } as unknown as Scene,
   hatches: {
     properties: {
-      position: new THREE.Vector3(0, 5, 0),
+      position: new THREE.Vector3(0, 2, 35),
     },
     object: () => {
-      const space = 10;
-      const dimensions = [2, 2, 10];
+      const space = 4;
+      const dimensions = [1, 2, 1];
       const getPosition = ({ x, z }: { x: number; z: number }) => ({
-        x: Math.sign(x - 0.5) * space,
+        x: (x / dimensions[x]) * space,
         z: (z - dimensions[2] / 2) * space,
       });
       const hatchName = "wavyEgg";
@@ -56,6 +60,7 @@ export default {
               [0, 1].forEach((y) => {
                 const mesh = meshTemplate.clone();
                 const position = getPosition({ x, z });
+                console.log(x, position.x)
 
                 mesh.position.x = position.x;
                 mesh.position.z = position.z;
@@ -99,7 +104,6 @@ export default {
             child.children.forEach((mesh, index) => {
               const y = index - 0.5;
 
-
               gsap.timeline().to(mesh.position, {
                 y: -y * +toggleClose,
                 duration: 1,
@@ -107,6 +111,65 @@ export default {
             });
           });
         });
+    },
+  } as unknown as SceneExport,
+  door: {
+    properties: {
+      position: new THREE.Vector3(0, 0, 25),
+    },
+    object: () => {
+      const width = 5;
+
+      return {
+        object3D: consulters.getProceduralGroup([
+          {
+            dimensions: [2],
+            material: getQuixelMaterial({
+              name: "Wood_Plank",
+              code: "uk3kffzn",
+              mapNames: ["AO", "Displacement"],
+            }),
+            geometry: new THREE.BoxBufferGeometry(width, width * 2, 1),
+            getIntersectionMesh([x], mesh) {
+              mesh.position.x = (x - 0.5) * width;
+  
+              return mesh;
+            },
+          },
+        ]),
+        width
+      }
+    },
+    onAnimation({ object3D, width }: SceneExport, canvasState: CanvasState) {
+      const cameraPosition = new Victor(
+        canvasState.camera?.position.x,
+        canvasState.camera?.position.z
+      );
+      const objectPosition = new Victor(
+        object3D.position.x,
+        object3D.position.z
+      );
+      const distanceToOpen = 20;
+      const distance = cameraPosition.distance(objectPosition);
+
+      // console.log('distance', distance);
+
+      const isOpened = distance <= distanceToOpen;
+
+      if (lastOpenedState !== isOpened) {
+        lastOpenedState = isOpened;
+
+        object3D.children.forEach((child, index) => {
+          const x = (index - 0.5) * width * (isOpened ? 2 : 1);
+
+          // console.log('x', x)
+
+          gsap.timeline().to(child.position, {
+            x,
+            duration: 1.5,
+          });
+        });
+      }
     },
   } as unknown as SceneExport,
 } as Scenes;
