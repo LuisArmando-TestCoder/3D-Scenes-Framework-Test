@@ -40,12 +40,18 @@ export default {
       position: new THREE.Vector3(0, 2, 35),
     },
     object: () => {
-      const space = 4;
-      const dimensions = [1, 2, 1];
-      const getPosition = ({ x, z }: { x: number; z: number }) => ({
-        x: (x / dimensions[x]) * space,
-        z: (z - dimensions[2] / 2) * space,
-      });
+      const spacing = {
+        x: 25,
+        z: 4,
+      };
+      const dimensions = [3, 2, 1];
+      const setPosition = (
+        { x, z }: { x: number; z: number },
+        position: THREE.Vector3
+      ) => {
+        position.x = (x / dimensions[0] - Math.sign(x) / 2) * spacing.x;
+        position.z = (z - dimensions[2] / 2) * spacing.z;
+      };
       const hatchName = "wavyEgg";
 
       return {
@@ -59,11 +65,8 @@ export default {
 
               [0, 1].forEach((y) => {
                 const mesh = meshTemplate.clone();
-                const position = getPosition({ x, z });
-                console.log(x, position.x)
+                setPosition({ x, z }, mesh.position);
 
-                mesh.position.x = position.x;
-                mesh.position.z = position.z;
                 mesh.rotateX(Math.PI * y);
                 mesh.rotateY(Math.PI * y);
 
@@ -71,6 +74,8 @@ export default {
               });
 
               group.name = hatchName;
+
+              console.log('x', x)
 
               return group as unknown as THREE.Mesh;
             },
@@ -80,10 +85,7 @@ export default {
             material: rainbowMaterial,
             dimensions,
             getIntersectionMesh([x, y, z], mesh) {
-              const position = getPosition({ x, z });
-
-              mesh.position.x = position.x;
-              mesh.position.z = position.z;
+              setPosition({ x, z }, mesh.position);
 
               return mesh;
             },
@@ -132,13 +134,13 @@ export default {
             geometry: new THREE.BoxBufferGeometry(width, width * 2, 1),
             getIntersectionMesh([x], mesh) {
               mesh.position.x = (x - 0.5) * width;
-  
+
               return mesh;
             },
           },
         ]),
-        width
-      }
+        width,
+      };
     },
     onAnimation({ object3D, width }: SceneExport, canvasState: CanvasState) {
       const cameraPosition = new Victor(
@@ -160,7 +162,7 @@ export default {
         lastOpenedState = isOpened;
 
         object3D.children.forEach((child, index) => {
-          const x = (index - 0.5) * width * (isOpened ? 2 : 1);
+          const x = (index - 0.5) * width * (isOpened ? 3 : 1);
 
           // console.log('x', x)
 
