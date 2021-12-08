@@ -3,12 +3,6 @@ uniform float iTime;
 uniform vec3 iResolution;
 varying vec3 fragCoord;
 
-const float PI = 3.14159265358979323846264338327950288;
-
-vec2 wavyFlare(vec2 uv) {
-    return (uv + .5) + cos(iTime) / 12.;
-}
-
 float waveLine(vec2 uv, float waveThickness, float waveFrequency, float waveCenter) {
     return max(
         min(
@@ -39,14 +33,14 @@ void main() {
     vec2 color = vec2(
         waveLine(
             uv, 
-            .000075 * wavyFlare(uv).y, 
+            .000075, 
             5000., // frequency
             0. // position
         )
     );
 
     // Output to screen
-    gl_FragColor = vec4(color, sin(color.x), 1.);
+    gl_FragColor = vec4(.0, color.y, sin(color.x), 1.);
 
     float colorThreshold = .00001;
 
@@ -54,6 +48,5 @@ void main() {
         gl_FragColor.a = 0.;
         discard;
     } 
-    // no objects can collide with the sight of the discarded one
 }
 `;

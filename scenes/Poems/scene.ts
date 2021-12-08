@@ -31,34 +31,80 @@ export default {
       );
     },
   } as unknown as Scene,
-  wavyBall: {
+  hatches: {
     properties: {
-      position: new THREE.Vector3(0, 2.5, 5),
+      position: new THREE.Vector3(0, 5, 0),
     },
-    object: () =>
-      consulters.getProceduralGroup([
-        {
-          geometry: new THREE.SphereBufferGeometry(1, 100, 100),
-          material: wavyMaterial,
-          dimensions: [2],
-          getIntersectionMesh([index], mesh) {
-            mesh.rotateX(Math.PI * index);
-            mesh.rotateY(Math.PI * index);
+    object: () => {
+      const space = 10;
+      const dimensions = [2, 2, 10];
+      const getPosition = ({ x, z }: { x: number; z: number }) => ({
+        x: Math.sign(x - 0.5) * space,
+        z: (z - dimensions[2] / 2) * space,
+      });
+      const hatchName = "wavyEgg";
 
-            return mesh;
+      return {
+        object3D: consulters.getProceduralGroup([
+          {
+            geometry: new THREE.SphereBufferGeometry(1, 100, 100),
+            material: wavyMaterial,
+            dimensions: [dimensions[0], dimensions[2]],
+            getIntersectionMesh([x, z], meshTemplate) {
+              const group = new THREE.Group();
+
+              [0, 1].forEach(y => {
+                const mesh = meshTemplate.clone();
+                const position = getPosition({ x, z });
+
+                mesh.position.x = position.x;
+                mesh.position.z = position.z;
+                mesh.rotateX(Math.PI * y);
+                mesh.rotateY(Math.PI * y);
+
+                group.add(mesh);
+              });
+
+              group.name = hatchName;
+
+              return group as unknown as THREE.Mesh;
+            },
           },
-        },
-      ]),
-    onSetup({ object3D }: SceneExport) {
-      let toggleClose = false;
+          {
+            geometry: new THREE.SphereBufferGeometry(0.5, 100, 100),
+            material: rainbowMaterial,
+            dimensions,
+            getIntersectionMesh([x, y, z], mesh) {
+              const position = getPosition({ x, z });
 
-      events.onClickIntersectsObject(object3D.children, () => {
-        toggleClose = !toggleClose;
+              mesh.position.x = position.x;
+              mesh.position.z = position.z;
 
-        object3D.children.forEach((child, index) => {
-          gsap.timeline().to(child.position, { y: -(index - .5) * +toggleClose, duration: 1 })
-        })
-      })
+              return mesh;
+            },
+          },
+        ]),
+        hatchName,
+      };
     },
-  } as unknown as Scene,
+    onSetup({ object3D, hatchName }: SceneExport) {
+      object3D.children
+        .filter(({ name }) => name === hatchName)
+        .forEach((child) => {
+          child.children.forEach((mesh, index) => {
+            const y = index - .5;
+            let toggleClose = false;
+
+            events.onClickIntersectsObject([mesh], () => {
+              toggleClose = !toggleClose;
+
+              gsap.timeline().to(mesh.position, {
+                y: -y * +toggleClose,
+                duration: 1,
+              });
+            });
+          });
+        });
+    },
+  } as unknown as SceneExport,
 } as Scenes;
