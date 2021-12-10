@@ -128,7 +128,7 @@ export default {
     object: () =>
       PointLightSet(
         pathPositions
-          .filter((_, index) => index % 4 === 0)
+          .filter((_, index) => index % 3 === 0)
           .map(({ x, z }) => ({
             color: "#fff",
             position: new THREE.Vector3(x * pathSize, pathSize * 1.5, z * pathSize),
