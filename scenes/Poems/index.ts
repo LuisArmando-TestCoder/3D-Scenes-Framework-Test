@@ -13,7 +13,7 @@ export default (id: string) =>
     {
       async setup(canvasState) {
         sceneEvents = await consulters.getSceneLifeCycle(scene);
-
+        
         sceneEvents?.onSetup(canvasState);
       },
       async animate(canvasState) {
