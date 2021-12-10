@@ -1,3 +1,12 @@
+/**
+ * @todo now put the positions for the canvases
+ * ... and their respective rotations
+ * ... on each room. Remember to set the
+ * ... [side by side] on downwards, 
+ * ... [downward and opposite] on corners, 
+ * ... [up and down] on side-lanes ------
+ */
+
 interface RoomPosition {
   x: number;
   z: number;
@@ -80,11 +89,12 @@ function getPathPositions(
   verticalSpace = 2
 ): RoomPosition[] {
   console.log(seed);
+  // make sure to capture neat new good looking seeds
 
   const roomsPaths = getRooms(seed, verticalSpace);
   const roomsWithWalkPaths = getRoomsWithWalkPaths(roomsPaths);
 
-  return roomsWithWalkPaths;
+  return roomsWithWalkPaths; 
 }
 
 export default getPathPositions;
