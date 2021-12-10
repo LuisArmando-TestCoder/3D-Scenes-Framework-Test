@@ -2,18 +2,19 @@
  * @todo now put the positions for the canvases
  * ... and their respective rotations
  * ... on each room. Remember to set the
- * ... [side by side] on downwards, 
- * ... [downward and opposite] on corners, 
+ * ... [side by side] on downwards,
+ * ... [downward and opposite] on corners,
  * ... [up and down] on side-lanes ------
  */
 
 interface RoomPosition {
+  laneType: 'frontal' | 'side-lane' | 'corner';
   x: number;
   z: number;
 }
 
 function getRoomPosition(
-  verticalSpace: number
+  frontalSpace: number
 ): (seedItem: string, index: number, seedItemsList: string[]) => RoomPosition {
   return function (
     seedItem: string,
@@ -23,22 +24,23 @@ function getRoomPosition(
     const highest = [...seedItemsList].sort(
       (a: string, b: string) => Number(b) - Number(a)
     )[0];
-    const roomPosition = {
+    const roomPosition: RoomPosition= {
+      laneType: 'corner',
       x: Math.round(
         (Number(seedItem) / Number(highest) - 0.5) * Number(highest)
       ),
       z:
         Math.round(
           ((index + 0.5) / seedItemsList.length - 0.5) * seedItemsList.length
-        ) * verticalSpace,
+        ) * frontalSpace,
     };
 
     return roomPosition;
   };
 }
 
-function getRooms(seed: number, verticalSpace: number): RoomPosition[] {
-  return String(seed).split("").map(getRoomPosition(verticalSpace));
+function getRooms(seed: number, frontalSpace: number): RoomPosition[] {
+  return String(seed).split("").map(getRoomPosition(frontalSpace));
 }
 
 function getRandomSeed(): number {
@@ -54,13 +56,16 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
     newRooms.push(room);
 
     while (
-      JSON.stringify(lastRoom) !== JSON.stringify(nextRoom) &&
+      nextRoom && lastRoom &&
+      lastRoom?.x !== nextRoom?.x ||
+      lastRoom?.z !== nextRoom?.z &&
       Number(index) < rooms.length - 1
     ) {
       const direction = Math.sign(nextRoom.x - lastRoom.x) as -1 | 1 | 0;
 
       if (direction) {
         lastRoom = {
+          laneType: 'side-lane',
           x: lastRoom.x + direction,
           z: lastRoom.z,
         };
@@ -71,13 +76,12 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
       }
 
       lastRoom = {
+        laneType: 'frontal',
         x: lastRoom.x,
         z: lastRoom.z + 1,
       };
 
       newRooms.push(lastRoom);
-
-      break;
     }
   }
 
@@ -86,15 +90,15 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
 
 function getPathPositions(
   seed = getRandomSeed(),
-  verticalSpace = 2
+  frontalSpace = 2
 ): RoomPosition[] {
   console.log(seed);
   // make sure to capture neat new good looking seeds
 
-  const roomsPaths = getRooms(seed, verticalSpace);
+  const roomsPaths = getRooms(seed, frontalSpace);
   const roomsWithWalkPaths = getRoomsWithWalkPaths(roomsPaths);
 
-  return roomsWithWalkPaths; 
+  return roomsWithWalkPaths;
 }
 
 export default getPathPositions;

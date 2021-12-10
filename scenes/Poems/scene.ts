@@ -15,7 +15,7 @@ import getQuixelMaterial from "../../materials/getQuixelMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 import getPathPositions from "./getPathPositions";
 
-const pathPositions = getPathPositions(105626437931257);
+const pathPositions = getPathPositions(798838645950457, 4);
 const pathSize = 10;
 let lastOpenedState = false;
 
@@ -128,14 +128,36 @@ export default {
     object: () =>
       PointLightSet(
         pathPositions
-          .filter((_, index) => index % 3 === 0)
+          .filter((_, index) => index % 5 === 0)
           .map(({ x, z }) => ({
             color: "#fff",
             position: new THREE.Vector3(x * pathSize, pathSize * 1.5, z * pathSize),
-            distance: pathSize * 2,
-            intensity: 1,
+            distance: pathSize * 2.5,
+            intensity: 6,
+            decay: 3,
           }))
       ),
+  } as unknown as Scene,
+  lightFollower: {
+    object: () =>
+      PointLightSet([
+        {
+          color: "#fff",
+          position: new THREE.Vector3(0, 2, 0),
+          distance: 25,
+          intensity: .1,
+        },
+      ]),
+    onAnimation: (
+      { object3D }: SceneExport,
+      canvasState: CanvasState
+    ) => {
+      object3D.position.set(
+        canvasState.camera?.position.x as number,
+        canvasState.camera?.position.y as number,
+        canvasState.camera?.position.z as number
+      );
+    },
   } as unknown as Scene,
   // door: {
   //   properties: {

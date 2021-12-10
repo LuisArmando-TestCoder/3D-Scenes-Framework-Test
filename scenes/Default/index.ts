@@ -3,9 +3,13 @@ import * as THREE from "three";
 import rainbowMaterial from "../../materials/rainbow";
 import wavyMaterial from "../../materials/wavy";
 
-actions.addSceneSetupIntrude((canvasState: types.state.CanvasState) => {
-  canvasState.presetConfiguration.ambient.color = 0x000000;
-  canvasState?.camera?.setFocalLength(20);
+actions.addSceneSetupIntrude(({ presetConfiguration, camera }: types.state.CanvasState) => {
+  presetConfiguration.ambient.color = 0x000000;
+  presetConfiguration.camera.cameraVectorsState.top.acceleration.x *= 5;
+  presetConfiguration.camera.cameraVectorsState.top.acceleration.z *= 5;
+  presetConfiguration.camera.cameraVectorsState.friction.x *= 5;
+  presetConfiguration.camera.cameraVectorsState.friction.z *= 5;
+  camera?.setFocalLength(20);
 });
 
 export default (id: string) =>
