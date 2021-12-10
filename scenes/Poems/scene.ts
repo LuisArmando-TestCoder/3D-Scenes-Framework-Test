@@ -19,6 +19,20 @@ const pathPositions = getPathPositions(798838645950457, 4);
 const pathSize = 10;
 let lastOpenedState = false;
 
+function getFloorTable(y: number) {
+  return function ([index]: number[], mesh: THREE.Mesh) {
+    mesh.position.set(
+      pathPositions[index].x * pathSize,
+      y,
+      pathPositions[index].z * pathSize
+    );
+  
+    mesh.rotateZ(Math.PI / 2);
+  
+    return mesh;
+  }
+}
+
 export default {
   path: {
     object: () =>
@@ -32,17 +46,13 @@ export default {
             mapNames: ["AO", "Displacement"],
           }),
           geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
-          getIntersectionMesh([index], mesh) {
-            mesh.position.set(
-              pathPositions[index].x * pathSize,
-              0,
-              pathPositions[index].z * pathSize
-            );
-
-            mesh.rotateZ(Math.PI / 2);
-
-            return mesh;
-          },
+          getIntersectionMesh: getFloorTable(0),
+        },
+        {
+          dimensions: [pathPositions.length],
+          material: new THREE.MeshBasicMaterial({ color: '#fff' }),
+          geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
+          getIntersectionMesh: getFloorTable(10),
         },
       ]),
   } as unknown as Scene,
@@ -128,7 +138,7 @@ export default {
     object: () =>
       PointLightSet(
         pathPositions
-          .filter((_, index) => index % 5 === 0)
+          .filter((_, index) => index % 7 === 0)
           .map(({ x, z }) => ({
             color: "#fff",
             position: new THREE.Vector3(x * pathSize, pathSize * 1.5, z * pathSize),

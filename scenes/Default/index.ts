@@ -3,14 +3,16 @@ import * as THREE from "three";
 import rainbowMaterial from "../../materials/rainbow";
 import wavyMaterial from "../../materials/wavy";
 
-actions.addSceneSetupIntrude(({ presetConfiguration, camera }: types.state.CanvasState) => {
-  presetConfiguration.ambient.color = 0x000000;
-  presetConfiguration.camera.cameraVectorsState.top.acceleration.x *= 5;
-  presetConfiguration.camera.cameraVectorsState.top.acceleration.z *= 5;
-  presetConfiguration.camera.cameraVectorsState.friction.x *= 5;
-  presetConfiguration.camera.cameraVectorsState.friction.z *= 5;
-  camera?.setFocalLength(20);
-});
+actions.addSceneSetupIntrude(
+  ({ presetConfiguration, camera }: types.state.CanvasState) => {
+    presetConfiguration.ambient.color = 0x000000;
+    presetConfiguration.camera.cameraVectorsState.top.acceleration.x *= 5;
+    presetConfiguration.camera.cameraVectorsState.top.acceleration.z *= 5;
+    presetConfiguration.camera.cameraVectorsState.friction.x *= 5;
+    presetConfiguration.camera.cameraVectorsState.friction.z *= 5;
+    camera?.setFocalLength(20);
+  }
+);
 
 export default (id: string) =>
   presetScene(
@@ -32,8 +34,7 @@ export default (id: string) =>
         });
       },
       animate(canvasState) {
-        const { cameraVectorsState } = canvasState.presetConfiguration.camera;
-        cameraVectorsState.position.min.y = -Infinity;
+        actions.blacklistControls(["setFirstPersonFlying"]);
 
         actions.blacklistObjects({
           scene: canvasState.scene as THREE.Scene,
