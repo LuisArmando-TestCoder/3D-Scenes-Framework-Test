@@ -34,8 +34,6 @@ export default (id: string) =>
         });
       },
       animate(canvasState) {
-        actions.blacklistControls(["setFirstPersonFlying"]);
-
         actions.blacklistObjects({
           scene: canvasState.scene as THREE.Scene,
           blacklist: [

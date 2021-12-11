@@ -65,7 +65,7 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
 
       if (direction) {
         lastRoom = {
-          laneType: 'side-lane',
+          laneType: lastRoom.x + direction === nextRoom.x ? 'corner' : 'side-lane',
           x: lastRoom.x + direction,
           z: lastRoom.z,
         };
@@ -81,7 +81,9 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
         z: lastRoom.z + 1,
       };
 
-      newRooms.push(lastRoom);
+      if (lastRoom.z < nextRoom?.z) {
+        newRooms.push(lastRoom);
+      }
     }
   }
 
@@ -97,6 +99,8 @@ function getPathPositions(
 
   const roomsPaths = getRooms(seed, frontalSpace);
   const roomsWithWalkPaths = getRoomsWithWalkPaths(roomsPaths);
+
+  console.log(roomsWithWalkPaths);
 
   return roomsWithWalkPaths;
 }

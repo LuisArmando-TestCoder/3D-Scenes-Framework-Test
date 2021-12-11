@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import presetScene, { consulters, types } from "scene-preset";
+import presetScene, { consulters, types, actions } from "scene-preset";
 import scene from "./scene";
 
 let sceneEvents: {
@@ -17,8 +17,11 @@ export default (id: string) =>
         sceneEvents?.onSetup(canvasState);
       },
       async animate(canvasState) {
+        actions.blacklistControls(["setFirstPersonFlying"]);
+
         sceneEvents?.onAnimation(canvasState);
       },
     },
     `#${id}`
   );
+

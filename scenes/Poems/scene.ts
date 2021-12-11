@@ -26,11 +26,11 @@ function getFloorTable(y: number) {
       y,
       pathPositions[index].z * pathSize
     );
-  
+
     mesh.rotateZ(Math.PI / 2);
-  
+
     return mesh;
-  }
+  };
 }
 
 export default {
@@ -50,9 +50,83 @@ export default {
         },
         {
           dimensions: [pathPositions.length],
-          material: new THREE.MeshBasicMaterial({ color: '#fff' }),
+          material: new THREE.MeshBasicMaterial({ color: "#fff" }),
           geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
           getIntersectionMesh: getFloorTable(10),
+        },
+        {
+          dimensions: [pathPositions.length, 2], // corners, side-lanes and frontals have always two spots n which a work can be placed
+          material: new THREE.MeshStandardMaterial({ color: "#fff" }),
+          geometry: new THREE.BoxBufferGeometry(
+            pathSize / 2,
+            pathSize / 2,
+            0.1
+          ),
+          getIntersectionMesh([index, pair], mesh) {
+            const { x, z, laneType } = pathPositions[index];
+            const wrapper = new THREE.Group();
+
+            wrapper.add(mesh);
+
+            wrapper.position.set(x * pathSize, 5, z * pathSize);
+
+            const laneName = (laneType + pair) as
+              | "frontal0"
+              | "frontal1"
+              | "side-lane0"
+              | "side-lane1";
+            // | "corner0"
+            // | "corner1";
+            const laneRotations = {
+              frontal0: -Math.PI / 2,
+              frontal1: Math.PI / 2,
+              "side-lane0": 0,
+              "side-lane1": Math.PI,
+              // "corner0": /* conditional */,
+              // "corner1": /* conditional */,
+            };
+
+            if (laneRotations[laneName]) {
+              mesh.rotateY(laneRotations[laneName]);
+            }
+
+            const displacement = pathSize / 2;
+            const lanePositions = {
+              frontal0: {
+                x: displacement,
+                z: 0,
+              },
+              frontal1: {
+                x: -displacement,
+                z: 0,
+              },
+              "side-lane0": {
+                x: 0,
+                z: displacement,
+              },
+              "side-lane1": {
+                x: 0,
+                z: -displacement,
+              },
+              // "corner": {
+              //   x: 0,
+              //   z: displacement,
+              // },
+              // "corner": {
+              //   x: 0,
+              //   z: -displacement,
+              // }
+            };
+
+            if (lanePositions[laneName]) {
+              mesh.position.x += lanePositions[laneName].x;
+              mesh.position.z += lanePositions[laneName].z;
+            }
+
+            // mesh.position.z += pathSize;
+
+            return wrapper as unknown as THREE.Mesh;
+          },
         },
       ]),
   } as unknown as Scene,
@@ -141,7 +215,11 @@ export default {
           .filter((_, index) => index % 7 === 0)
           .map(({ x, z }) => ({
             color: "#fff",
-            position: new THREE.Vector3(x * pathSize, pathSize * 1.5, z * pathSize),
+            position: new THREE.Vector3(
+              x * pathSize,
+              pathSize * 1.5,
+              z * pathSize
+            ),
             distance: pathSize * 2.5,
             intensity: 6,
             decay: 3,
@@ -155,13 +233,10 @@ export default {
           color: "#fff",
           position: new THREE.Vector3(0, 2, 0),
           distance: 25,
-          intensity: .1,
+          intensity: 0.1,
         },
       ]),
-    onAnimation: (
-      { object3D }: SceneExport,
-      canvasState: CanvasState
-    ) => {
+    onAnimation: ({ object3D }: SceneExport, canvasState: CanvasState) => {
       object3D.position.set(
         canvasState.camera?.position.x as number,
         canvasState.camera?.position.y as number,
