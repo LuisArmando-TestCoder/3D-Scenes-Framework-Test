@@ -3,7 +3,10 @@ import * as THREE from "three";
 export default function (
   url: string,
   scale: number
-): Promise<THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>> {
+): Promise<{
+  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
+  aspectRatio: number;
+}> {
   const textureLoader = new THREE.TextureLoader();
   const imageLoader = new THREE.ImageLoader();
 
@@ -20,8 +23,9 @@ export default function (
           map: textureLoader.load(url),
           side: THREE.DoubleSide,
         });
+        const mesh = new THREE.Mesh(geometry, material);
 
-        resolve(new THREE.Mesh(geometry, material));
+        resolve({ mesh, aspectRatio });
       },
       undefined,
       reject

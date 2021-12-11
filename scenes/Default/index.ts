@@ -34,6 +34,9 @@ export default (id: string) =>
         });
       },
       animate(canvasState) {
+        if (canvasState.camera) {
+          canvasState.camera.position.y = 4.5;
+        }
         actions.blacklistObjects({
           scene: canvasState.scene as THREE.Scene,
           blacklist: [

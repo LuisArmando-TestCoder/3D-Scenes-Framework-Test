@@ -16,12 +16,12 @@ export default {
   discoModel: {
     properties: {
       position: new THREE.Vector3(0, 25, 0),
-      scale: new THREE.Vector3(.03, .03, .03),
+      scale: new THREE.Vector3(0.03, 0.03, 0.03),
     },
     object: async () => await Model("./models/disco_ball/scene.gltf"),
-    onAnimation({object3D}: SceneExport) {
-      object3D.rotation.y += .01;
-    }
+    onAnimation({ object3D }: SceneExport) {
+      object3D.rotation.y += 0.01;
+    },
   } as unknown as Scene,
   discoStatue: {
     properties: {
@@ -30,9 +30,9 @@ export default {
       rotation: new THREE.Vector3(Math.PI, 0, 0),
     },
     object: async () => await Model("./models/venus_de_disco/scene.gltf"),
-    onAnimation({object3D}: SceneExport) {
-      object3D.rotation.y += .01;
-    }
+    onAnimation({ object3D }: SceneExport) {
+      object3D.rotation.y += 0.01;
+    },
   } as unknown as Scene,
   poem: {
     properties: {
@@ -49,13 +49,13 @@ export default {
           color: "#f00",
           thickness: 0.1,
           size: 0.5,
-        })
+        }),
       ],
-      hi: 'you'
+      hi: "you",
     }),
     onSetup({ hi, object3D }: SceneExport) {
-      console.log(hi, object3D)
-    }
+      console.log(hi, object3D);
+    },
   } as unknown as Scene,
   discoPlanet: {
     properties: {
@@ -119,7 +119,7 @@ export default {
 
       for (const [name, urls] of Object.entries(linkImages)) {
         const [redirect, imageURL] = urls;
-        const image = await Image(imageURL, 10);
+        const { mesh: image } = await Image(imageURL, 10);
         const step =
           (++index / Object.entries(linkImages).length) * Math.PI * 2;
 
@@ -277,10 +277,7 @@ export default {
           intensity: 1,
         },
       ]),
-    onAnimation: (
-      { object3D }: SceneExport,
-      canvasState: CanvasState
-    ) => {
+    onAnimation: ({ object3D }: SceneExport, canvasState: CanvasState) => {
       object3D.position.set(
         canvasState.camera?.position.x as number,
         canvasState.camera?.position.y as number,

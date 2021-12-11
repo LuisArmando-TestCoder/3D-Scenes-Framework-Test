@@ -7,8 +7,10 @@
  * ... [up and down] on side-lanes ------
  */
 
-interface RoomPosition {
-  laneType: 'frontal' | 'side-lane' | 'corner';
+export type LaneType = "frontal" | "side-lane" | "corner";
+
+export interface RoomPosition {
+  laneType: LaneType;
   x: number;
   z: number;
 }
@@ -24,8 +26,8 @@ function getRoomPosition(
     const highest = [...seedItemsList].sort(
       (a: string, b: string) => Number(b) - Number(a)
     )[0];
-    const roomPosition: RoomPosition= {
-      laneType: 'corner',
+    const roomPosition: RoomPosition = {
+      laneType: "corner",
       x: Math.round(
         (Number(seedItem) / Number(highest) - 0.5) * Number(highest)
       ),
@@ -56,16 +58,15 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
     newRooms.push(room);
 
     while (
-      nextRoom && lastRoom &&
-      lastRoom?.x !== nextRoom?.x ||
-      lastRoom?.z !== nextRoom?.z &&
-      Number(index) < rooms.length - 1
+      (nextRoom && lastRoom && lastRoom?.x !== nextRoom?.x) ||
+      (lastRoom?.z !== nextRoom?.z && Number(index) < rooms.length - 1)
     ) {
       const direction = Math.sign(nextRoom.x - lastRoom.x) as -1 | 1 | 0;
 
       if (direction) {
         lastRoom = {
-          laneType: lastRoom.x + direction === nextRoom.x ? 'corner' : 'side-lane',
+          laneType:
+            lastRoom.x + direction === nextRoom.x ? "corner" : "side-lane",
           x: lastRoom.x + direction,
           z: lastRoom.z,
         };
@@ -76,7 +77,7 @@ function getRoomsWithWalkPaths(rooms: RoomPosition[]): RoomPosition[] {
       }
 
       lastRoom = {
-        laneType: 'frontal',
+        laneType: "frontal",
         x: lastRoom.x,
         z: lastRoom.z + 1,
       };
@@ -99,8 +100,6 @@ function getPathPositions(
 
   const roomsPaths = getRooms(seed, frontalSpace);
   const roomsWithWalkPaths = getRoomsWithWalkPaths(roomsPaths);
-
-  console.log(roomsWithWalkPaths);
 
   return roomsWithWalkPaths;
 }
