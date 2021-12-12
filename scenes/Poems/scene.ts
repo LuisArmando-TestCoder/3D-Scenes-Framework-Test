@@ -27,7 +27,7 @@ type LaneName =
   | "corner0"
   | "corner1";
 
-const pathPositions = getPathPositions(798838645950457, 4);
+const pathPositions = getPathPositions(798838645950457, 4); // 123456789 fails miserably, use it for debugging
 const pathSize = 10;
 const displacement = pathSize / 2;
 let lastOpenedState = false;
@@ -119,6 +119,16 @@ function getCanvasPosition(index: number, pair: 0 | 1) {
   return lanePositions[laneName];
 }
 
+function getPexelsSrc(index: number, pair: number): string {
+  const imageIndex = 1671323 + (index + pathPositions.length * pair);
+
+  return "https://images.pexels.com/photos/" +
+  imageIndex +
+  "/pexels-photo-" +
+  imageIndex +
+  ".jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
+}
+
 export default {
   // tags: {
   //   object: () =>
@@ -177,20 +187,16 @@ export default {
             pathSize / 2,
             0.1
           ),
-          async getIntersectionMesh(
+          getIntersectionMesh: async (
             [index, pair]: number[],
             object: THREE.Object3D
-          ) {
-            const imageIndex = 1671323 + (index + pathPositions.length * pair);
+          ) => {
             if (index > 0 && index < pathPositions.length - 1) {
               const mesh = object as THREE.Mesh;
               try {
                 const { mesh: image, aspectRatio } = await Image(
-                  "https://images.pexels.com/photos/" +
-                    imageIndex +
-                    "/pexels-photo-" +
-                    imageIndex +
-                    ".jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+                  getPexelsSrc(index, pair),
+                  // `./images/pictures/img (${index * 2 + pair}).jpg`,
                   pathSize / 2
                 );
 
@@ -217,7 +223,7 @@ export default {
 
               mesh.rotateY(canvasRotation);
 
-              return wrapper as unknown as THREE.Object3D;
+              return wrapper as unknown as THREE.Object3D<Event>;
             }
           },
         },

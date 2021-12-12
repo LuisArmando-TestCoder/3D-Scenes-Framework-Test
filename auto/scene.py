@@ -27,12 +27,12 @@ executeConditionalPath(
         "export default (id: string) =>\n" +
         "  presetScene(\n" +
         "    {\n" +
-        "      async setup(canvasState) {\n" +
+        "      async setup(canvasState: types.state.CanvasState) {\n" +
         "        sceneEvents = await consulters.getSceneLifeCycle(scene);\n" +
         "\n" +
         "        sceneEvents?.onSetup(canvasState);\n" +
         "      },\n" +
-        "      async animate(canvasState) {\n" +
+        "      async animate(canvasState: types.state.CanvasState) {\n" +
         "        sceneEvents?.onAnimation(canvasState);\n" +
         "      },\n" +
         "    },\n" +
@@ -45,17 +45,20 @@ executeConditionalPath(
     f"{folderPath}/scene.ts",
     lambda path: createFile(
         path,
+        "import Victor from \"Victor\";\n" +
         "import * as THREE from \"three\";\n" +
         "import { events, consulters } from \"scene-preset\";\n" +
         "import { CanvasState } from \"scene-preset/lib/types/state\";\n" +
         "import { Scene, Scenes, SceneExport } from \"scene-preset/lib/types/consulters\";\n" +
-        "import rainbowMaterial from \"../../materials/rainbow\";\n" +
         "import gsap from \"gsap\";\n" +
         "\n" +
         "import Image from \"../../meshes/Image\";\n" +
         "import Text from \"../../meshes/Text\";\n" +
         "import Model from \"../../meshes/Model\";\n" +
         "import getTextureMaterial from \"../../materials/getTextureMaterial\";\n" +
+        "import getQuixelMaterial from \"../../materials/getQuixelMaterial\";\n" +
+        "import wavyMaterial from \"../../materials/wavy\";\n" +
+        "import rainbowMaterial from \"../../materials/rainbow\";" 
         "import PointLightSet from \"../../meshes/PointLightSet\";\n" +
         "\n" +
         "export default {\n" +

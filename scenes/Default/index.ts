@@ -2,6 +2,8 @@ import presetScene, { actions, types, consulters, events } from "scene-preset";
 import * as THREE from "three";
 import rainbowMaterial from "../../materials/rainbow";
 import wavyMaterial from "../../materials/wavy";
+import liquidMetalMaterial from "../../materials/liquidMetal";
+import trippySpiralMetalMaterial from "../../materials/trippySpiral";
 
 actions.addSceneSetupIntrude(
   ({ presetConfiguration, camera }: types.state.CanvasState) => {
@@ -17,13 +19,18 @@ actions.addSceneSetupIntrude(
 export default (id: string) =>
   presetScene(
     {
-      async setup(canvasState) {
-        [rainbowMaterial, wavyMaterial].forEach((material) => {
+      async setup(canvasState: types.state.CanvasState) {
+        [
+          rainbowMaterial,
+          wavyMaterial,
+          liquidMetalMaterial,
+          trippySpiralMetalMaterial,
+        ].forEach((material) => {
           actions.setUniforms(material);
         });
 
         let wasRecording = false;
-        const recorder = consulters.getCanvasRecorder(
+        let recorder = consulters.getCanvasRecorder(
           canvasState.canvas as HTMLCanvasElement
         );
 
@@ -31,12 +38,16 @@ export default (id: string) =>
         events.onKey("g").end(() => {
           recorder[wasRecording ? "stop" : "start"]();
           wasRecording = !wasRecording;
+
+          if (!wasRecording) {
+            recorder = consulters.getCanvasRecorder(
+              canvasState.canvas as HTMLCanvasElement
+            );
+            actions.downloadCanvasRecordingOnStop(recorder);
+          }
         });
       },
-      animate(canvasState) {
-        if (canvasState.camera) {
-          canvasState.camera.position.y = 4.5;
-        }
+      animate(canvasState: types.state.CanvasState) {
         actions.blacklistObjects({
           scene: canvasState.scene as THREE.Scene,
           blacklist: [

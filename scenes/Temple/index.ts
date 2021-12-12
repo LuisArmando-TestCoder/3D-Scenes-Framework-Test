@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from "three";
 import presetScene, { consulters, types } from "scene-preset";
 import scene from "./scene";
 
@@ -11,12 +11,12 @@ let sceneEvents: {
 export default (id: string) =>
   presetScene(
     {
-      async setup(canvasState) {
+      async setup(canvasState: types.state.CanvasState) {
         sceneEvents = await consulters.getSceneLifeCycle(scene);
 
         sceneEvents?.onSetup(canvasState);
       },
-      async animate(canvasState) {
+      async animate(canvasState: types.state.CanvasState) {
         sceneEvents?.onAnimation(canvasState);
       },
     },

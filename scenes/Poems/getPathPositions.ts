@@ -27,7 +27,7 @@ function getRoomPosition(
       (a: string, b: string) => Number(b) - Number(a)
     )[0];
     const roomPosition: RoomPosition = {
-      laneType: "corner",
+      laneType: seedItemsList[index + 1] === seedItem ? "frontal" : "corner",
       x: Math.round(
         (Number(seedItem) / Number(highest) - 0.5) * Number(highest)
       ),

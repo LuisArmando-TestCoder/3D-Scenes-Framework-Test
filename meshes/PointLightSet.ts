@@ -29,3 +29,4 @@ export default (lights: PointLight[]) => {
 
   return lightSet;
 };
+

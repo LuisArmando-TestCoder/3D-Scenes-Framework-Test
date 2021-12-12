@@ -10,6 +10,7 @@ interface Properties {
   size?: number;
   thickness?: number;
   color?: string;
+  material?: THREE.Material;
 }
 
 export default ({
@@ -18,6 +19,7 @@ export default ({
   size = 1,
   thickness = 1,
   color = "#000",
+  material = new THREE.MeshStandardMaterial({ color }),
 }: Properties): Promise<THREE.Mesh> => {
   return new Promise<THREE.Mesh>((resolve, reject) => {
     loader.load(
@@ -28,10 +30,7 @@ export default ({
           size,
           height: thickness,
         });
-        const textMesh = new THREE.Mesh(geometry, [
-          new THREE.MeshStandardMaterial({ color }),
-          new THREE.MeshStandardMaterial({ color }),
-        ]);
+        const textMesh = new THREE.Mesh(geometry, [material, material]);
 
         textMesh.castShadow = true;
 
