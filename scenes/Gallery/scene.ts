@@ -1,280 +1,340 @@
+/**
+ * @todo there should be three canvases on each extreme
+ */
+
+import Victor from "Victor";
 import * as THREE from "three";
 import { events, consulters } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
 import { Scene, Scenes, SceneExport } from "scene-preset/lib/types/consulters";
+import wavyMaterial from "../../materials/wavy";
 import rainbowMaterial from "../../materials/rainbow";
 import gsap from "gsap";
 
-import linkImages from "./linkImages.store";
 import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 import Model from "../../meshes/Model";
 import getTextureMaterial from "../../materials/getTextureMaterial";
+import getQuixelMaterial from "../../materials/getQuixelMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
+import getPathPositions, { RoomPosition, LaneType } from "./getPathPositions";
+
+type LaneName =
+  | "frontal0"
+  | "frontal1"
+  | "side-lane0"
+  | "side-lane1"
+  | "corner0"
+  | "corner1";
+
+const pathPositions = getPathPositions(798838645950457, 4); // 123456789 fails miserably, use it for debugging
+const pathSize = 10;
+const displacement = pathSize / 2;
+let lastOpenedState = false;
+
+function getCornerPosition(
+  index: number,
+  axis: "x" | "z",
+  pair: 0 | 1
+): number {
+  const cornerPosition =
+    (pathPositions[index][axis] -
+      (pathPositions[index + Math.sign(pair - 0.5)]?.[axis] ??
+        pathPositions[index][axis])) *
+    displacement;
+
+  return cornerPosition;
+}
+
+function getFloorTable(y: number) {
+  return function ([index]: number[], mesh: THREE.Object3D) {
+    mesh.position.set(
+      pathPositions[index].x * pathSize,
+      y,
+      pathPositions[index].z * pathSize
+    );
+
+    mesh.rotateZ(Math.PI / 2);
+
+    return mesh;
+  };
+}
+
+function getCanvasRealRotation(
+  pathPositions: RoomPosition[],
+  index: number,
+  pair: 0 | 1
+): number {
+  return (
+    Math.PI / (pair + 1) -
+    (Math.PI / 2) * +(pathPositions[index - 1].laneType === "side-lane")
+  );
+}
+
+function getLaneName(index: number, pair: 0 | 1): LaneName {
+  const laneType: LaneType = pathPositions[index].laneType;
+  const laneName = (laneType + pair) as LaneName;
+
+  return laneName;
+}
+
+function getCanvasRotation(index: number, pair: 0 | 1): number {
+  const cornerRotation = getCanvasRealRotation(
+    pathPositions,
+    index,
+    pair as 0 | 1
+  );
+  const laneRotations = {
+    frontal0: -Math.PI / 2,
+    frontal1: Math.PI / 2,
+    "side-lane0": 0,
+    "side-lane1": Math.PI,
+    corner0: cornerRotation,
+    corner1: cornerRotation,
+  };
+  const laneName = getLaneName(index, pair);
+
+  return laneRotations[laneName];
+}
+
+function getCanvasPosition(index: number, pair: 0 | 1) {
+  const cornerPosition = {
+    x: getCornerPosition(index, "x", pair as 0 | 1),
+    z: getCornerPosition(index, "z", pair as 0 | 1),
+  };
+  const laneName = getLaneName(index, pair);
+  const isFrontal = laneName[0] === "f";
+  const lanePosition = {
+    [isFrontal ? "x" : "z"]: displacement * -Math.sign(pair - 0.5),
+  };
+  const lanePositions = {
+    frontal0: lanePosition,
+    frontal1: lanePosition,
+    "side-lane0": lanePosition,
+    "side-lane1": lanePosition,
+    corner0: cornerPosition,
+    corner1: cornerPosition,
+  };
+
+  return lanePositions[laneName];
+}
+
+function getPexelsSrc(index: number, pair: number): string {
+  const imageIndex = 1671323 + (index + pathPositions.length * pair);
+
+  return "https://images.pexels.com/photos/" +
+  imageIndex +
+  "/pexels-photo-" +
+  imageIndex +
+  ".jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260";
+}
 
 export default {
-  discoModel: {
-    properties: {
-      position: new THREE.Vector3(0, 25, 0),
-      scale: new THREE.Vector3(0.03, 0.03, 0.03),
-    },
-    object: async () => await Model("./models/disco_ball/scene.gltf"),
-    onAnimation({ object3D }: SceneExport) {
-      object3D.rotation.y += 0.01;
-    },
-  } as unknown as Scene,
-  discoStatue: {
-    properties: {
-      position: new THREE.Vector3(0, 100, 25),
-      scale: new THREE.Vector3(50, 50, 50),
-      rotation: new THREE.Vector3(Math.PI, 0, 0),
-    },
-    object: async () => await Model("./models/venus_de_disco/scene.gltf"),
-    onAnimation({ object3D }: SceneExport) {
-      object3D.rotation.y += 0.01;
-    },
-  } as unknown as Scene,
-  poem: {
-    properties: {
-      position: new THREE.Vector3(5, 3, 20),
-      rotation: new THREE.Vector3(0, Math.PI, 0),
-    },
-    object: async () => ({
-      object3D: [
-        await Text({
-          text: `Hello,
+  // tags: {
+  //   object: () =>
+  //     pathPositions.map(async ({ x, z, laneType }, index) => {
+  //       const text = await Text({
+  //         text: "x" + x + ",z" + z + "\n" + laneType + index,
+  //         path: "./fonts/Montserrat_Regular.json",
+  //         color: "#f00",
+  //         thickness: 0.1,
+  //         size: 0.5,
+  //       });
 
-          it's been quite long`,
-          path: "./fonts/Montserrat_Regular.json",
-          color: "#f00",
-          thickness: 0.1,
-          size: 0.5,
-        }),
-      ],
-      hi: "you",
-    }),
-    onSetup({ hi, object3D }: SceneExport) {
-      console.log(hi, object3D);
-    },
-  } as unknown as Scene,
-  discoPlanet: {
-    properties: {
-      position: new THREE.Vector3(0, 200, 0),
-    },
-    object: () => [
-      consulters.getProceduralGroup([
-        {
-          geometry: new THREE.TorusBufferGeometry(1, 0.1, 3, 100),
-          material: rainbowMaterial,
-          dimensions: [250],
-          getIntersectionMesh([index], mesh) {
-            const size = 250;
-            const rescale = 15;
-            const step = (index / size - 0.5) * Math.PI * 2;
-            const scaleY1 = Math.cos(step) * rescale;
-            const scaleY2 = Math.sin(step) * rescale;
+  //       text.position.set(x * pathSize, 3, z * pathSize);
 
-            mesh.position.y = scaleY1;
-            mesh.scale.set(scaleY2, scaleY2, 0);
-            mesh.rotateX(Math.PI / 2);
-
-            return mesh;
-          },
-        },
-        {
-          geometry: new THREE.TorusBufferGeometry(10, 0.1, 10, 100),
-          material: rainbowMaterial,
-          dimensions: [3],
-          getIntersectionMesh([index], mesh) {
-            const size = 3;
-            const rescale = 1.5;
-            const step = (index / size - 0.5) * Math.PI * 2;
-            const scaleY2 = Math.sin(step) * rescale;
-
-            mesh.scale.set(3.5 + scaleY2, 3.5 + scaleY2, 1);
-            mesh.rotateX(Math.PI / 2);
-
-            return mesh;
-          },
-        },
-      ]),
-      PointLightSet([
-        {
-          color: "#f00",
-          distance: 100,
-          intensity: 1,
-          decay: 2,
-        },
-      ]),
-    ],
-  } as unknown as Scene,
-  links: {
-    properties: {
-      position: new THREE.Vector3(0, 0, 25),
-    },
-    object: async () => {
-      const redirectObjects = new THREE.Group();
-      const distance = Object.entries(linkImages).length * 3;
-      let index = 0;
-
-      for (const [name, urls] of Object.entries(linkImages)) {
-        const [redirect, imageURL] = urls;
-        const { mesh: image } = await Image(imageURL, 10);
-        const step =
-          (++index / Object.entries(linkImages).length) * Math.PI * 2;
-
-        image.position.x = Math.sin(step) * distance;
-        image.position.z = Math.cos(step) * distance;
-        image.name = redirect;
-
-        image.lookAt(new THREE.Vector3(0, 0, 0));
-
-        redirectObjects.add(image);
-
-        const text = await Text({
-          text: name,
-          path: "./fonts/Montserrat_Regular.json",
-          color: "#f00",
-          thickness: 0.1,
-          size: 0.5,
-        });
-
-        text.position.x = Math.sin(step) * (distance * 0.99);
-        text.position.z = Math.cos(step) * (distance * 0.99);
-        text.name = redirect;
-
-        text.lookAt(new THREE.Vector3(0, 0, 0));
-
-        redirectObjects.add(text);
-      }
-
-      return [
-        redirectObjects,
-        PointLightSet([
-          {
-            color: "#00f",
-            position: new THREE.Vector3(0, 15, 0),
-            distance: 50,
-            intensity: 1,
-          },
-        ]),
-      ];
-    },
-    onSetup({ object3D }: SceneExport) {
-      object3D.children[0].children.forEach((child) => {
-        events.onClickIntersectsObject([child], () => {
-          window.open(child.name, "_blank");
-        });
-      });
-    },
-  } as unknown as Scene,
-  tunnelSquares: {
+  //       return text;
+  //     }),
+  //   onAnimation: ({ object3D }: SceneExport, canvasState: CanvasState) => {
+  //     for (const child of object3D.children)
+  //       child.lookAt(
+  //         canvasState.camera?.position.x as number,
+  //         canvasState.camera?.position.y as number,
+  //         canvasState.camera?.position.z as number
+  //       );
+  //   },
+  // } as unknown as Scene,
+  path: {
     object: () =>
       consulters.getProceduralGroup([
         {
-          geometry: new THREE.BoxBufferGeometry(10, 10, 10),
-          material: getTextureMaterial({
-            maps: {
-              baseColor:
-                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_albedo.png",
-              normal:
-                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_normal-ogl.png",
-              roughness:
-                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_roughness.png",
-              ao: "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_ao.png",
-              metal:
-                "./textures/floral-embossed-wallpaper1-bl/floral-embossed-wallpaper1_metallic.png",
-            },
+          // floor through the path
+          dimensions: [pathPositions.length],
+          material: getQuixelMaterial({
+            multiplyScalar: pathSize,
+            name: "Wood_Parquet",
+            code: "uenndanl",
+            mapNames: ["AO", "Displacement"],
           }),
-          getIntersectionMesh(indices, mesh) {
-            const step = (indices[1] / 60) * Math.PI * 2;
-            const size = 10;
-            const y = (indices[0] - 50) * size;
-            mesh.position.set(
-              Math.sin(step) * (30 / Math.PI) * size,
-              y,
-              Math.cos(step) * (30 / Math.PI) * size
-            );
-            mesh.lookAt(new THREE.Vector3(0, y, 0));
+          geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
+          getIntersectionMesh: getFloorTable(0),
+        },
+        {
+          // rectangular looking lights
+          dimensions: [pathPositions.length],
+          material: new THREE.MeshBasicMaterial({ color: "#fff" }),
+          geometry: new THREE.BoxBufferGeometry(0.1, pathSize, pathSize),
+          getIntersectionMesh: getFloorTable(10),
+        },
+        {
+          // canvases
+          dimensions: [pathPositions.length, 2],
+          // corners, side-lanes and frontals have
+          // ... always two spots in which an art work can be placed
+          material: new THREE.MeshStandardMaterial({ color: "#fff" }),
+          geometry: new THREE.BoxBufferGeometry(
+            pathSize / 2,
+            pathSize / 2,
+            0.1
+          ),
+          getIntersectionMesh: async (
+            [index, pair]: number[],
+            object: THREE.Object3D
+          ) => {
+            if (index > 0 && index < pathPositions.length - 1) {
+              const mesh = object as THREE.Mesh;
+              try {
+                const { mesh: image, aspectRatio } = await Image(
+                  getPexelsSrc(index, pair),
+                  // `./images/pictures/img (${index * 2 + pair}).jpg`,
+                  pathSize / 2
+                );
 
-            if (Math.random() < 0.75) {
-              return mesh;
+                mesh.material = image.material;
+                mesh.scale.x *= aspectRatio;
+              } catch (error) {
+                console.error(error);
+              }
+
+              const wrapper = new THREE.Group();
+
+              wrapper.add(mesh);
+
+              const { x, z } = pathPositions[index];
+
+              wrapper.position.set(x * pathSize, 5, z * pathSize);
+
+              const canvasPosition = getCanvasPosition(index, pair as 0 | 1);
+
+              mesh.position.x += canvasPosition.x ?? 0;
+              mesh.position.z += canvasPosition.z ?? 0;
+
+              const canvasRotation = getCanvasRotation(index, pair as 0 | 1);
+
+              mesh.rotateY(canvasRotation);
+
+              return wrapper as unknown as THREE.Object3D<Event>;
             }
           },
-          dimensions: [100, 60],
         },
       ]),
   } as unknown as Scene,
-  floatingSquares: {
-    object: () =>
-      consulters.getProceduralGroup([
-        {
-          geometry: new THREE.BoxBufferGeometry(0.25, 0.25, 0.25) as any,
-          material: new THREE.MeshBasicMaterial({
-            color: "#f00",
-          }),
-          getIntersectionMesh(indices, mesh) {
-            const size = 5;
-            mesh.position.set(
-              Math.sin((indices[0] / size) * Math.PI * 2) * Math.random() * 50,
-              indices[1] * 10,
-              Math.cos((indices[2] / size + Math.random()) * Math.PI * 2) *
-                Math.random() *
-                50
-            );
+  // hatches: {
+  //   properties: {
+  //     position: new THREE.Vector3(0, 2, 35),
+  //   },
+  //   object: () => {
+  //     const spacing = {
+  //       x: 25,
+  //       z: 4,
+  //     };
+  //     const dimensions = [3, 2, 1];
+  //     const setPosition = (
+  //       { x, z }: { x: number; z: number },
+  //       position: THREE.Vector3
+  //     ) => {
+  //       position.x = (x / dimensions[0] - Math.sign(x) / 2) * spacing.x;
+  //       position.z = (z - dimensions[2] / 2) * spacing.z;
+  //     };
+  //     const hatchName = "wavyEgg";
 
-            return mesh;
-          },
-          dimensions: [5, 5, 5],
-        },
-      ]),
-    onSetup({ object3D }: SceneExport) {
-      object3D.children.forEach((element: THREE.Object3D) => {
-        gsap.timeline().to(element.position, {
-          y: element.position.y + Math.random() * 20,
-          duration: 20,
-        });
-        events.onClickIntersectsObject([element], () => {
-          gsap.timeline().to(element.rotation, {
-            x: Math.random() * 10,
-            y: Math.random() * 10,
-            z: Math.random() * 10,
-            duration: 3,
-          });
-        });
-      });
-    },
-  } as unknown as Scene,
-  floor: {
-    properties: {
-      position: new THREE.Vector3(0, -6, 0),
-    },
+  //     return {
+  //       object3D: consulters.getProceduralGroup([
+  //         {
+  //           geometry: new THREE.SphereBufferGeometry(1, 100, 100),
+  //           material: wavyMaterial,
+  //           dimensions: [dimensions[0], dimensions[2]],
+  //           getIntersectionMesh([x, z], meshTemplate) {
+  //             const group = new THREE.Group();
+
+  //             [0, 1].forEach((y) => {
+  //               const mesh = meshTemplate.clone();
+  //               setPosition({ x, z }, mesh.position);
+
+  //               mesh.rotateX(Math.PI * y);
+  //               mesh.rotateY(Math.PI * y);
+
+  //               group.add(mesh);
+  //             });
+
+  //             group.name = hatchName;
+
+  //             return group as unknown as THREE.Mesh;
+  //           },
+  //         },
+  //         {
+  //           geometry: new THREE.SphereBufferGeometry(0.5, 100, 100),
+  //           material: rainbowMaterial,
+  //           dimensions,
+  //           getIntersectionMesh([x, y, z], mesh) {
+  //             setPosition({ x, z }, mesh.position);
+
+  //             return mesh;
+  //           },
+  //         },
+  //       ]),
+  //       hatchName,
+  //     };
+  //   },
+  //   onSetup({ object3D, hatchName }: SceneExport) {
+  //     object3D.children
+  //       .filter(({ name }) => name === hatchName)
+  //       .forEach((child) => {
+  //         let toggleClose = false;
+
+  //         events.onClickIntersectsObject([child], () => {
+  //           toggleClose = !toggleClose;
+
+  //           child.children.forEach((mesh, index) => {
+  //             const y = index - 0.5;
+
+  //             gsap.timeline().to(mesh.position, {
+  //               y: -y * +toggleClose,
+  //               duration: 1,
+  //             });
+  //           });
+  //         });
+  //       });
+  //   },
+  // } as unknown as SceneExport,
+  lights: {
     object: () =>
-      new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(2000, 2000),
-        getTextureMaterial({
-          multiplyScalar: 300,
-          maps: {
-            baseColor: "./textures/mahogfloor-bl/mahogfloor_basecolor.png",
-            normal: "./textures/mahogfloor-bl/mahogfloor_normal.png",
-            roughness: "./textures/mahogfloor-bl/mahogfloor_roughness.png",
-            ao: "./textures/mahogfloor-bl/mahogfloor_AO.png",
-            bump: "./textures/mahogfloor-bl/mahogfloor_Height.png",
-          },
-        })
+      PointLightSet(
+        pathPositions
+          .filter(
+            ({ laneType }, index) => laneType === "corner" || index % 10 === 0
+          )
+          .map(({ x, z }) => ({
+            color: "#fff",
+            position: new THREE.Vector3(
+              x * pathSize,
+              pathSize * 1.5,
+              z * pathSize
+            ),
+            distance: pathSize * 2.5,
+            intensity: 6,
+            decay: 3,
+          }))
       ),
-    onSetup({ object3D: floor }: SceneExport) {
-      floor.rotateX(Math.PI / 2);
-    },
   } as unknown as Scene,
   lightFollower: {
     object: () =>
       PointLightSet([
         {
-          color: "#f00",
+          color: "#fff",
           position: new THREE.Vector3(0, 2, 0),
-          distance: 35,
-          intensity: 1,
+          distance: 25,
+          intensity: 0.1,
         },
       ]),
     onAnimation: ({ object3D }: SceneExport, canvasState: CanvasState) => {
@@ -285,4 +345,60 @@ export default {
       );
     },
   } as unknown as Scene,
+  // door: {
+  //   properties: {
+  //     position: new THREE.Vector3(0, 0, 10),
+  //   },
+  //   object: () => {
+  //     const width = 5;
+
+  //     return {
+  //       object3D: consulters.getProceduralGroup([
+  //         {
+  //           dimensions: [2],
+  //           material: getQuixelMaterial({
+  //             name: "Wood_Plank",
+  //             code: "uk3kffzn",
+  //             mapNames: ["AO", "Displacement"],
+  //           }),
+  //           geometry: new THREE.BoxBufferGeometry(width, width * 2, 1),
+  //           getIntersectionMesh([x], mesh) {
+  //             mesh.position.x = (x - 0.5) * width;
+
+  //             return mesh;
+  //           },
+  //         },
+  //       ]),
+  //       width,
+  //     };
+  //   },
+  //   onAnimation({ object3D, width }: SceneExport, canvasState: CanvasState) {
+  //     const cameraPosition = new Victor(
+  //       canvasState.camera?.position.x,
+  //       canvasState.camera?.position.z
+  //     );
+  //     const objectPosition = new Victor(
+  //       object3D.position.x,
+  //       object3D.position.z
+  //     );
+  //     const distanceToOpen = 10;
+  //     const distance = cameraPosition.distance(objectPosition);
+  //     const isOpened = distance <= distanceToOpen;
+
+  //     if (lastOpenedState !== isOpened) {
+  //       lastOpenedState = isOpened;
+
+  //       object3D.children.forEach((child, index) => {
+  //         const x = (index - 0.5) * width * (isOpened ? 3 : 1);
+
+  //         // console.log('x', x)
+
+  //         gsap.timeline().to(child.position, {
+  //           x,
+  //           duration: 5,
+  //         });
+  //       });
+  //     }
+  //   },
+  // } as unknown as SceneExport,
 } as Scenes;

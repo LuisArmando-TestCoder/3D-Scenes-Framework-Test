@@ -58,7 +58,7 @@ executeConditionalPath(
         "import getTextureMaterial from \"../../materials/getTextureMaterial\";\n" +
         "import getQuixelMaterial from \"../../materials/getQuixelMaterial\";\n" +
         "import wavyMaterial from \"../../materials/wavy\";\n" +
-        "import rainbowMaterial from \"../../materials/rainbow\";" 
+        "import rainbowMaterial from \"../../materials/rainbow\";\n" 
         "import PointLightSet from \"../../meshes/PointLightSet\";\n" +
         "\n" +
         "export default {\n" +
