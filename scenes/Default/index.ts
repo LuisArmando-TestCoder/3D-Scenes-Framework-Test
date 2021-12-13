@@ -4,6 +4,7 @@ import rainbowMaterial from "../../materials/rainbow";
 import wavyMaterial from "../../materials/wavy";
 import liquidMetalMaterial from "../../materials/liquidMetal";
 import trippySpiralMetalMaterial from "../../materials/trippySpiral";
+import textureLogicMetalMaterial from "../../materials/textureLogic";
 
 actions.addSceneSetupIntrude(
   ({ presetConfiguration, camera }: types.state.CanvasState) => {
@@ -25,6 +26,7 @@ export default (id: string) =>
           wavyMaterial,
           liquidMetalMaterial,
           trippySpiralMetalMaterial,
+          textureLogicMetalMaterial,
         ].forEach((material) => {
           actions.setUniforms(material);
         });

@@ -14,6 +14,7 @@ import wavyMaterial from "../../materials/wavy";
 import rainbowMaterial from "../../materials/rainbow";
 import trippySpiralMaterial from "../../materials/trippySpiral";
 import liquidMetalMaterial from "../../materials/liquidMetal";
+import textureLogicMetalMaterial from "../../materials/textureLogic";
 import PointLightSet from "../../meshes/PointLightSet";
 
 export default {
@@ -21,7 +22,7 @@ export default {
     object: () =>
       new THREE.Mesh(
         new THREE.SphereBufferGeometry(1000, 100, 100),
-        liquidMetalMaterial
+        textureLogicMetalMaterial
       ),
   },
   // author: {
