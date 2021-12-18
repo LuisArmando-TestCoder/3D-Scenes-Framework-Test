@@ -22,22 +22,22 @@ export default {
     object: () =>
       new THREE.Mesh(
         new THREE.SphereBufferGeometry(1000, 100, 100),
-        textureLogicMetalMaterial
+        rainbowMaterial
       ),
   },
-  // author: {
-  //   properties: {
-  //     position: new THREE.Vector3(5, 3, 20),
-  //     rotation: new THREE.Vector3(0, Math.PI, 0),
-  //   },
-  //   object: () =>
-  //     Text({
-  //       text: `Morphix | Mercurial Gold`,
-  //       path: "./fonts/Montserrat_Regular.json",
-  //       color: "#f00",
-  //       thickness: 5,
-  //       size: 20,
-  //       material: liquidMetalMaterial,
-  //     }),
-  // },
+  author: {
+    properties: {
+      position: new THREE.Vector3(150, 3, 200),
+      rotation: new THREE.Vector3(0, Math.PI, 0),
+    },
+    object: () =>
+      Text({
+        text: `TestCoder | Halo Waves`,
+        path: "./fonts/Montserrat_Regular.json",
+        color: "#f00",
+        thickness: 5,
+        size: 20,
+        material: rainbowMaterial,
+      }),
+  },
 } as Scenes;

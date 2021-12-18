@@ -9,6 +9,7 @@ export default () => {
                 <meta name="description" content="Poems" />
                 <link rel="icon" href="/favicon.ico" />
             </Head>
+            <audio src="./audios/cadapiezaconintencionextended.mp3" />
             <Components.L1.Canvas3D
                 id={'Poems'}
                 scenes={[

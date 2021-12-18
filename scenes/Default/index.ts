@@ -5,6 +5,7 @@ import wavyMaterial from "../../materials/wavy";
 import liquidMetalMaterial from "../../materials/liquidMetal";
 import trippySpiralMetalMaterial from "../../materials/trippySpiral";
 import textureLogicMetalMaterial from "../../materials/textureLogic";
+import basicShaderToyMetalMaterial from "../../materials/basicShaderToy";
 
 actions.addSceneSetupIntrude(
   ({ presetConfiguration, camera }: types.state.CanvasState) => {
@@ -21,15 +22,16 @@ export default (id: string) =>
   presetScene(
     {
       async setup(canvasState: types.state.CanvasState) {
-        [
-          rainbowMaterial,
-          wavyMaterial,
-          liquidMetalMaterial,
-          trippySpiralMetalMaterial,
-          textureLogicMetalMaterial,
-        ].forEach((material) => {
-          actions.setUniforms(material);
-        });
+        // [
+        //   rainbowMaterial,
+        //   wavyMaterial,
+        //   liquidMetalMaterial,
+        //   trippySpiralMetalMaterial,
+        //   textureLogicMetalMaterial,
+        //   basicShaderToyMetalMaterial,
+        // ].forEach((material) => {
+        //   actions.setUniforms(material);
+        // });
 
         let wasRecording = false;
         let recorder = consulters.getCanvasRecorder(
