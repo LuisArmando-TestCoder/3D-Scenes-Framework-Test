@@ -6,7 +6,7 @@ uniform vec3 iResolution;
 varying vec3 fragCoord;
 void main()
 {
-    vec2 p = 10.*(( fragCoord.xy-.5* iResolution.xy )/iResolution.y)-.5 ;
+    vec2 p = 50.*(( fragCoord.xy-.5* iResolution.xy )/iResolution.y)-.5 ;
     vec2 i = p;
 	float c = 0.0;
 	float r = length(p+vec2(sin(iTime),sin(iTime*.222+99.))*1.5);
@@ -19,6 +19,6 @@ void main()
 		c += 1.0/length(vec2((sin(i.x+t)/.15), (cos(i.y+t)/.15)));
 	}
 	c /= 4.0;
-	gl_FragColor = vec4(vec3(c)*vec3(4.3, 3.4, 0.1)-0.35, .1);
+	gl_FragColor = vec4(vec3(c)*vec3(5., 5., 5.)-0.35, .1);
 }
 `;

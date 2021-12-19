@@ -1,5 +1,7 @@
 import * as THREE from "three";
-import { events, consulters, components } from "scene-preset";
+import { consulters } from "scene-preset";
+import basicShaderToyMaterial from "../../materials/basicShaderToy";
+
 
 export default ({
     x, z, size = 10, amount = 70
@@ -9,8 +11,8 @@ export default ({
 
   return consulters.getProceduralGroup([
     {
-      geometry: new THREE.BoxBufferGeometry(size * 0.75, size * 0.75, 0.1),
-      material: new THREE.MeshStandardMaterial({ color: "#fff" }),
+      geometry: new THREE.BoxBufferGeometry(0.1, size * 0.75, 0.1),
+      material: basicShaderToyMaterial,
       dimensions: [size, amount],
       getIntersectionMesh(indices, mesh) {
         const step = (indices[1] / amount) * Math.PI * 2;

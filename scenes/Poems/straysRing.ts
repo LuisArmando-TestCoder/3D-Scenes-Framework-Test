@@ -33,13 +33,13 @@ const ring = consulters.getProceduralGroup([
   },
 ]);
 
-export default consulters.getProceduralGroup([
+export default (y: number = 2) => consulters.getProceduralGroup([
   {
-    dimensions: [2],
+    dimensions: [y],
     getIntersectionMesh([index]) {
       const mesh = ring.clone();
 
-      mesh.position.y = index * 4;
+      mesh.position.y = index * (y * 2);
 
       return mesh;
     },

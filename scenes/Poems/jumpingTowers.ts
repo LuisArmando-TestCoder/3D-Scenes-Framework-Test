@@ -5,12 +5,12 @@ export default (amount = 5, thickness = 1, height = 1) => {
   return consulters.getProceduralGroup([
     {
       geometry: new THREE.BoxBufferGeometry(
-        thickness * 0.5,
+        thickness * 0.1,
         height,
-        thickness * 0.5
+        thickness
       ),
       material: new THREE.MeshStandardMaterial({
-        color: "#fff",
+        color: "#f00",
       }),
       dimensions: [amount],
       getIntersectionMesh([index], mesh) {

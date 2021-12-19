@@ -2,6 +2,7 @@ import Victor from "Victor";
 import * as THREE from "three";
 import { events, consulters, components, types } from "scene-preset";
 import { CanvasState } from "scene-preset/lib/types/state";
+import { AudioProperties } from "scene-preset/lib/types/utils";
 import { Scene, Scenes, SceneExport } from "scene-preset/lib/types/consulters";
 import gsap from "gsap";
 
@@ -13,9 +14,15 @@ import getQuixelMaterial from "../../materials/getQuixelMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 import wavyMaterial from "../../materials/wavy";
 import rainbowMaterial from "../../materials/rainbow";
+import liquidMetal from "../../materials/liquidMetal";
+import basicShaderToyMaterial from "../../materials/basicShaderToy";
+import trippySpiralMetalMaterial from "../../materials/trippySpiral";
+
 import straysRing from "./straysRing";
 import squaresCluster from "./squaresCluster";
 import jumpingTowers from "./jumpingTowers";
+
+const time = () => new Date().getTime() / 1000;
 
 function getSlopedCircular(index: number, amount: number, distance = 500) {
   const randomStep = (index / amount) * (Math.PI * 2);
@@ -30,37 +37,141 @@ function getSlopedCircular(index: number, amount: number, distance = 500) {
   };
 }
 
+function setEndlessFall(object3D: THREE.Object3D, timeline = gsap.timeline()) {
+  timeline.to(object3D.position, { y: -10, duration: 5 }).call(() => {
+    timeline.set(object3D.position, { y: 10 });
+
+    setEndlessFall(object3D, timeline);
+  });
+}
+
 export default {
-  lights: {
-    object: () => new components.SimpleLightSet().object,
-    // PointLightSet([
-    //   {
-    //     color: "#fff",
-    //     intensity: 1,
-    //     distance: 1000,
-    //   },
-    // ]),
+  sky: {
+    object: () =>
+      new THREE.Mesh(
+        new THREE.SphereBufferGeometry(1500, 100, 100),
+        trippySpiralMetalMaterial
+      ),
+  },
+  robot: {
+    properties: {
+      position: {
+        y: 10,
+      },
+      rotation: {
+        y: Math.PI / 2,
+      },
+    },
+    object: () => Model("./models/gltf/robot/scene.gltf"),
+    onSetup({ object3D }: SceneExport) {
+      const trigger = { fall: false };
+
+      events.onKey("p").end(() => {
+        trigger.fall = true;
+      });
+
+      return trigger;
+    },
+    onAnimation({ object3D, exported }: SceneExport) {
+      if (exported.fall) {
+        object3D.position.y -= 0.001;
+      }
+    },
   } as unknown as Scene,
-  // diagonalBars: {
-  //   properties: {
-  //     position: {
-  //       z: 5,
-  //     },
-  //   },
-  //   object: () => straysRing,
-  // } as unknown as Scene,
+  lights: {
+    properties: {
+      position: {
+        y: 10,
+        x: -20,
+      },
+    },
+    object: () =>
+      PointLightSet([
+        {
+          color: "#fff",
+          distance: 0,
+        },
+      ]),
+  } as unknown as Scene,
+  diagonalBars: {
+    object: () => straysRing(1),
+    onAnimation({ object3D }: SceneExport) {
+      object3D.children.forEach((child, z, { length: zlength }) => {
+        child.children.forEach((child, y, { length: ylength }) => {
+          child.children.forEach((child, x, { length: xlength }) => {
+            const index = x + y + z;
+            const length = xlength + ylength + zlength;
+            child.position.y +=
+              Math.sin((index / length) * Math.PI * 2 + time()) / 100;
+          });
+        });
+      });
+    },
+  } as unknown as Scene,
   tunnelSquares: {
     object: () => {
-      const amount = 12;
+      const amount = 20;
+      const size = 20;
+      const height = 50;
+
+      return consulters.getProceduralGroup([
+        {
+          geometry: new THREE.BoxBufferGeometry(
+            size * 0.9,
+            size * 0.9,
+            size * 0.9
+          ),
+          material: new THREE.MeshStandardMaterial({ color: "#aaa" }),
+          getIntersectionMesh(indices, mesh) {
+            const step = (indices[1] / amount) * Math.PI * 2;
+            const y = (indices[0] - height / 2) * size;
+            mesh.position.set(
+              Math.sin(step) * (amount / 2 / Math.PI) * size,
+              y,
+              Math.cos(step) * (amount / 2 / Math.PI) * size
+            );
+            mesh.lookAt(new THREE.Vector3(0, y, 0));
+
+            return mesh;
+          },
+          dimensions: [height, amount],
+        },
+      ]);
+    },
+    onSetup({ object3D }: SceneExport) {
+      const audio = document?.querySelector("audio") as HTMLAudioElement;
+
+      events.onKey("p").end(() => {
+        audio[audio.paused ? "play" : "pause"]();
+      });
+
+      const audioProperties = consulters.getAudioProperties(audio);
+      const scales = object3D.children.map((child) => child.scale.z).flat();
+      return {
+        audioProperties,
+        scales,
+      };
+    },
+    onAnimation({ exported, object3D }: SceneExport) {
+      const { frequencies } = exported.audioProperties as AudioProperties;
+      object3D.children.forEach((child, index) => {
+        child.scale.z =
+          1 +
+          (exported.scales[index % 1024] *
+            (frequencies?.[612 - (index % 1024)] || 0)) /
+            128;
+      });
+    },
+  } as unknown as Scene,
+  voidLines: {
+    object: () => {
+      const amount = 1;
 
       return consulters.getProceduralGroup([
         {
           dimensions: [amount],
           getIntersectionMesh([index]) {
-            const { x, z } = getSlopedCircular(index, amount);
-            const cluster = squaresCluster({ x, z });
-
-            cluster.position.y = (Math.random() - 0.5) * 250;
+            const cluster = squaresCluster({ x: 0, z: 0, size: 5 });
 
             return cluster;
           },
@@ -70,60 +181,7 @@ export default {
     onAnimation({ object3D }: SceneExport) {
       object3D.children.forEach((child) => {
         child.children.forEach((child) => {
-          child.rotation.x += 0.1;
-        });
-      });
-    },
-  } as unknown as Scene,
-  towers: {
-    object: () => {
-      const amount = 30;
-
-      return consulters.getProceduralGroup([
-        {
-          dimensions: [amount],
-          getIntersectionMesh([index]) {
-            const { x, z } = getSlopedCircular(index, amount, 100);
-            const towers = jumpingTowers(7);
-
-            towers.position.set(x, 0, z);
-            towers.lookAt(new THREE.Vector3());
-
-            return towers;
-          },
-        },
-      ]);
-    },
-    onSetup({ object3D }: SceneExport) {
-      const audio = document?.querySelector("audio") as HTMLAudioElement;
-
-      audio.crossOrigin = "anonymous";
-
-      events.onKey("p").end(() => {
-        audio[audio.paused ? "play" : "pause"]();
-        console.log(audio);
-      });
-
-      const audioProperties = consulters.getAudioProperties(audio);
-      const scales = object3D.children
-        .map((child) => child.children.map((child) => child.scale.y))
-        .flat();
-
-      return {
-        audioProperties,
-        scales,
-      };
-    },
-    onAnimation({ exported, object3D }: SceneExport) {
-      const { frequencies } =
-        exported.audioProperties as types.utils.AudioProperties;
-
-      object3D.children.forEach((child, x) => {
-        child.children.forEach((child, y) => {
-          const index = x + y;
-
-          child.scale.y =
-            (exported.scales[index] * (frequencies?.[612 - index] || 0)) / 128;
+          child.rotation.x += 0.02;
         });
       });
     },

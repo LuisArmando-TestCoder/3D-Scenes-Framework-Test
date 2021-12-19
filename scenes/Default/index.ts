@@ -22,16 +22,16 @@ export default (id: string) =>
   presetScene(
     {
       async setup(canvasState: types.state.CanvasState) {
-        // [
-        //   rainbowMaterial,
-        //   wavyMaterial,
-        //   liquidMetalMaterial,
-        //   trippySpiralMetalMaterial,
-        //   textureLogicMetalMaterial,
-        //   basicShaderToyMetalMaterial,
-        // ].forEach((material) => {
-        //   actions.setUniforms(material);
-        // });
+        [
+          rainbowMaterial,
+          wavyMaterial,
+          liquidMetalMaterial,
+          trippySpiralMetalMaterial,
+          textureLogicMetalMaterial,
+          basicShaderToyMetalMaterial,
+        ].forEach((material) => {
+          actions.setUniforms(material);
+        });
 
         let wasRecording = false;
         let recorder = consulters.getCanvasRecorder(

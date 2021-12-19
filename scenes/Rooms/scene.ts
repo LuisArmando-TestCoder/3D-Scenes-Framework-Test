@@ -19,7 +19,7 @@ export default {
     },
     object: async () => {
       const satelliteTemplate = await Model(
-        "./models/satellite_modul/scene.gltf"
+        "./models/gltf/satellite_modul/scene.gltf"
       );
 
       return consulters.getProceduralGroup([
@@ -118,7 +118,7 @@ export default {
         z: 2,
       },
     },
-    object: async () => await Model("./models/skull_salazar/scene.gltf"),
+    object: async () => await Model("./models/gltf/skull_salazar/scene.gltf"),
     onSetup({ object3D }: SceneExport) {
       events
         .onKey("g")

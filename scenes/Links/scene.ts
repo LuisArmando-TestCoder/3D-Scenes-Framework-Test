@@ -29,7 +29,7 @@ export default {
       scale: new THREE.Vector3(50, 50, 50),
       rotation: new THREE.Vector3(Math.PI, 0, 0),
     },
-    object: async () => await Model("./models/venus_de_disco/scene.gltf"),
+    object: async () => await Model("./models/gltf/venus_de_disco/scene.gltf"),
     onAnimation({ object3D }: SceneExport) {
       object3D.rotation.y += 0.01;
     },
