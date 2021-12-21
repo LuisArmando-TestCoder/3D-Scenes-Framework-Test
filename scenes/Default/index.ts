@@ -6,6 +6,8 @@ import liquidMetalMaterial from "../../materials/liquidMetal";
 import trippySpiralMetalMaterial from "../../materials/trippySpiral";
 import textureLogicMetalMaterial from "../../materials/textureLogic";
 import basicShaderToyMetalMaterial from "../../materials/basicShaderToy";
+import starfieldMaterial from "../../materials/starfield";
+import worleyNoiseWatersMaterial from "../../materials/worleyNoiseWaters";
 
 actions.addSceneSetupIntrude(
   ({ presetConfiguration, camera }: types.state.CanvasState) => {
@@ -29,6 +31,8 @@ export default (id: string) =>
           trippySpiralMetalMaterial,
           textureLogicMetalMaterial,
           basicShaderToyMetalMaterial,
+          starfieldMaterial,
+          worleyNoiseWatersMaterial,
         ].forEach((material) => {
           actions.setUniforms(material);
         });
