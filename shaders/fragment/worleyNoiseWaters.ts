@@ -28,7 +28,7 @@ float worley(vec2 p) {
 			d = min(d, length2(p - tp - noise(tp)));
 		}
 	}
-	return 100.0*exp(-4.0*abs(2.5*d - 1.0));
+	return 100.0*exp(-4.0*abs(.5*d - 1.0));
 }
 
 float fworley(vec2 p) {

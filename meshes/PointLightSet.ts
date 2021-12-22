@@ -8,7 +8,7 @@ interface PointLight {
   decay?: number;
 }
 
-export default (lights: PointLight[]) => {
+export default (lights: PointLight[]): THREE.Group => {
   const lightSet = new THREE.Group();
 
   lights.forEach(
