@@ -38,11 +38,11 @@ export default {
       rotation: {
         y: -Math.PI / 4,
       },
-      position: new THREE.Vector3(0, -20, 0),
+      position: new THREE.Vector3(0, -100, 0),
     },
     object: () =>
       new THREE.Mesh(
-        new THREE.PlaneBufferGeometry(2500, 2500),
+        new THREE.PlaneBufferGeometry(3000, 3000),
         worleyNoiseWatersMaterial
       ),
     onSetup({ object3D: floor }: SceneExport) {
@@ -53,19 +53,57 @@ export default {
     properties: {
       position: new THREE.Vector3(0, 20, 0),
     },
-    object: () =>
-      LightOrbs([
-        new THREE.Vector3(0, 0, 40),
-        new THREE.Vector3(20, 0, 40),
-        new THREE.Vector3(-20, 0, 40),
-      ]),
-    onAnimation({ object3D }: SceneExport) {
-      const distance = .5;
-      object3D.children.forEach((child, index) => {
-        const indexNormal = index / object3D.children.length;
-        const step = new Date().getTime() / 500 + indexNormal;
-        child.position.y += Math.cos(step) * distance;
-        child.position.x += Math.sin(step / 2) * distance;
+    object: () => {
+      const length = 12;
+      const distance = 40;
+
+      return consulters.getProceduralGroup([
+        {
+          dimensions: [length],
+          getIntersectionMesh([index]) {
+            const [lightOrb] = LightOrbs([new THREE.Vector3(0, 0, 0)]);
+            const ring = new THREE.Mesh(
+              new THREE.RingBufferGeometry(0.5, 1, 73),
+              new THREE.MeshPhongMaterial({
+                color: "#fff",
+                specular: "#fff",
+                shininess: 30,
+                side: THREE.DoubleSide,
+              })
+            );
+
+            ring.scale.set(1.5, 1.5, 1.5);
+
+            const lightGroup = new THREE.Group();
+
+            lightGroup.add(lightOrb as unknown as THREE.Object3D);
+            lightGroup.add(ring);
+
+            const step = (index / length) * Math.PI * 2;
+            const overStep = 0.5;
+
+            ring.position.set(
+              Math.sin(step) * (distance + overStep),
+              overStep,
+              Math.cos(step) * (distance + overStep)
+            );
+
+            lightOrb.position.set(
+              Math.sin(step) * distance,
+              0,
+              Math.cos(step) * distance
+            );
+
+            return lightGroup;
+          },
+        },
+      ]);
+    },
+    onSetup({ object3D }: SceneExport) {
+      object3D.children.forEach((child) => {
+        child.children.forEach((child) => {
+          child.lookAt(new THREE.Vector3());
+        });
       });
     },
   } as unknown as Scene,
@@ -90,40 +128,37 @@ export default {
         // })
       ),
   } as unknown as Scene,
-  // bench: {
+  // diamond: {
   //   properties: {
   //     position: {
-  //       y: -2.5,
+  //       y: 5,
   //     },
   //   },
-  //   object: () => Model("./models/gltf/bench_minecraft/scene.gltf"),
-  //   onSetup: console.log,
-  // } as unknown as Scene,
-  // horse: {
-  //   properties: {
-  //     position: {
-  //       y: -2.5,
-  //     },
+  //   object: () => Model("./models/gltf/minecraft_diamond/scene.gltf"),
+  //   onAnimation({ object3D }: SceneExport) {
+  //     object3D.rotation.y += .05;
   //   },
-  //   object: () => Model("./models/gltf/minecraft_-_hell_horse_yitrium/scene.gltf"),
-  //   onSetup: console.log,
   // } as unknown as Scene,
-  // king: {
-  //   properties: {
-  //     position: {
-  //       y: -2.5,
-  //     },
-  //   },
-  //   object: () => Model("./models/gltf/minecraft_-_mexican_king_maximiliano_i/scene.gltf"),
-  //   onSetup: console.log,
-  // } as unknown as Scene,
-  // executioner: {
-  //   properties: {
-  //     position: {
-  //       y: -2.5,
-  //     },
-  //   },
-  //   object: () => Model("./models/gltf/minecraft_-_necrosed_executioner_mob_idea/scene.gltf"),
-  //   onSetup: console.log,
-  // } as unknown as Scene,
+  fox: {
+    properties: {
+      position: {
+        x: -1.25,
+        y: -1.25,
+        z: -1.25,
+      },
+    },
+    object: () => Model("./models/gltf/fox_minecraft/scene.gltf"),
+    onAnimation(
+      { object3D, animations }: SceneExport,
+      { camera }: CanvasState
+    ) {
+      const x =
+        Math.max(-1, Math.min(1, (camera?.position as THREE.Vector3).x - object3D.position.x));
+      object3D.rotation.y = Math.sin(x * Math.PI);
+
+      const run = animations.get("Run")(0.01);
+
+      run.play();
+    },
+  } as unknown as Scene,
 } as Scenes;

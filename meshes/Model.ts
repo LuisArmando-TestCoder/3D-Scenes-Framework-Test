@@ -5,7 +5,7 @@ export default (
   path: string
 ): Promise<{
   object3D: THREE.Group;
-  animations: Map<string, THREE.AnimationAction>;
+  animations: Map<string, (animationSpeed: number) => THREE.AnimationAction>;
 }> => {
   return new Promise((resolve, reject) => {
     new GLTFLoader().load(
@@ -19,10 +19,16 @@ export default (
 
         const gltfAnimations: THREE.AnimationClip[] = gltf.animations;
         const mixer = new THREE.AnimationMixer(model);
-        const animations: Map<string, THREE.AnimationAction> = new Map();
+        const animations: Map<string, (animationSpeed: number) => THREE.AnimationAction> = new Map();
 
         gltfAnimations.forEach((a: THREE.AnimationClip) => {
-          animations.set(a.name, mixer.clipAction(a));
+          const action = mixer.clipAction(a);
+
+          animations.set(a.name, (animationSpeed: number) => {
+            mixer.update(animationSpeed);
+
+            return action;
+          });
         });
 
         resolve({ object3D: model, animations });

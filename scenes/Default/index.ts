@@ -37,22 +37,23 @@ export default (id: string) =>
           actions.setUniforms(material);
         });
 
-        let wasRecording = false;
-        let recorder = consulters.getCanvasRecorder(
-          canvasState.canvas as HTMLCanvasElement
-        );
+        // let wasRecording = false;
+        // let recorder = consulters.getCanvasRecorder(
+        //   canvasState.canvas as HTMLCanvasElement
+        // );
 
-        actions.downloadCanvasRecordingOnStop(recorder);
+        // actions.downloadCanvasRecordingOnStop(recorder);
         events.onKey("g").end(() => {
-          recorder[wasRecording ? "stop" : "start"]();
-          wasRecording = !wasRecording;
+        //   console.log("hey")
+        //   recorder[wasRecording ? "stop" : "start"]();
+        //   wasRecording = !wasRecording;
 
-          if (!wasRecording) {
-            recorder = consulters.getCanvasRecorder(
-              canvasState.canvas as HTMLCanvasElement
-            );
-            actions.downloadCanvasRecordingOnStop(recorder);
-          }
+        //   if (!wasRecording) {
+        //     recorder = consulters.getCanvasRecorder(
+        //       canvasState.canvas as HTMLCanvasElement
+        //     );
+        //     actions.downloadCanvasRecordingOnStop(recorder);
+        //   }
         });
       },
       animate(canvasState: types.state.CanvasState) {
@@ -69,4 +70,3 @@ export default (id: string) =>
     },
     `#${id}`
   );
-
