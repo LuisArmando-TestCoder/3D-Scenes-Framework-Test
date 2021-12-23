@@ -1,19 +1,11 @@
-import Victor from "Victor";
 import * as THREE from "three";
-import { events, consulters } from "scene-preset";
-import { CanvasState } from "scene-preset/lib/types/state";
+import { consulters } from "scene-preset";
 import { Scene, Scenes, SceneExport } from "scene-preset/lib/types/consulters";
-import gsap from "gsap";
 
-import Image from "../../meshes/Image";
 import Text from "../../meshes/Text";
 import Model from "../../meshes/Model";
-import getTextureMaterial from "../../materials/getTextureMaterial";
-import getQuixelMaterial from "../../materials/getQuixelMaterial";
-import wavyMaterial from "../../materials/wavy";
 import starfieldMaterial from "../../materials/starfield";
 import worleyNoiseWatersMaterial from "../../materials/worleyNoiseWaters";
-import PointLightSet from "../../meshes/PointLightSet";
 import LightOrbs from "../../meshes/LightOrbs";
 
 export default {
@@ -121,44 +113,45 @@ export default {
           specular: "#fff",
           shininess: 30,
         })
-        // getQuixelMaterial({
-        //   multiplyScalar: 7.5,
-        //   name: "Marble_Polished",
-        //   code: "vdfjbfvv",
-        // })
       ),
   } as unknown as Scene,
-  // diamond: {
-  //   properties: {
-  //     position: {
-  //       y: 5,
-  //     },
-  //   },
-  //   object: () => Model("./models/gltf/minecraft_diamond/scene.gltf"),
-  //   onAnimation({ object3D }: SceneExport) {
-  //     object3D.rotation.y += .05;
-  //   },
-  // } as unknown as Scene,
-  fox: {
+  poem: {
     properties: {
       position: {
-        x: -1.25,
-        y: -1.25,
-        z: -1.25,
+        y: 3,
+        x: 1.5,
+        z: 55
+      },
+      rotation: {
+        y: Math.PI,
       },
     },
-    object: () => Model("./models/gltf/fox_minecraft/scene.gltf"),
-    onAnimation(
-      { object3D, animations }: SceneExport,
-      { camera }: CanvasState
-    ) {
-      const x =
-        Math.max(-1, Math.min(1, (camera?.position as THREE.Vector3).x - object3D.position.x));
-      object3D.rotation.y = Math.sin(x * Math.PI);
-
-      const run = animations.get("Run")(0.01);
-
-      run.play();
+    object: () =>
+      Text({
+        path: "./fonts/Montserrat_Regular.json",
+        text: `
+        Estoy acá para
+        tomar el listón, 
+        para ser y no ser 
+        lo que sea que 
+        he de dejar 
+        o continuar.
+        `,
+        size: .25,
+        thickness: 0.1,
+        color: "#fff",
+      }),
+  } as unknown as Scene,
+  sculpture: {
+    properties: {
+      position: {
+        y: -2.5,
+      },
+      scale: new THREE.Vector3(30, 30, 30),
     },
+    object: () => Model("./models/gltf/venus_de_disco/scene.gltf"),
+    onAnimation({ object3D }: SceneExport) {
+      object3D.rotation.y += .005;
+    }
   } as unknown as Scene,
 } as Scenes;
