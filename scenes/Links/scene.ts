@@ -13,16 +13,6 @@ import getTextureMaterial from "../../materials/getTextureMaterial";
 import PointLightSet from "../../meshes/PointLightSet";
 
 export default {
-  discoModel: {
-    properties: {
-      position: new THREE.Vector3(0, 25, 0),
-      scale: new THREE.Vector3(0.03, 0.03, 0.03),
-    },
-    object: async () => await Model("./models/disco_ball/scene.gltf"),
-    onAnimation({ object3D }: SceneExport) {
-      object3D.rotation.y += 0.01;
-    },
-  } as unknown as Scene,
   discoStatue: {
     properties: {
       position: new THREE.Vector3(0, 100, 25),
