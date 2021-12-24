@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import Victor from "victor";
 import { consulters, types } from "scene-preset";
 import { Scene, Scenes, SceneExport } from "scene-preset/lib/types/consulters";
 
@@ -22,18 +23,44 @@ export default {
       { object3D, animations }: SceneExport,
       canvasState: types.state.CanvasState
     ) {
-      const camera = canvasState.camera as THREE.Object3D;
-
-      object3D.lookAt(camera.position.x, -1.5, camera.position.z);
-
-      const speedScale = 0.01;
-
-      object3D.position.x += speedScale * (camera.position.x - object3D.position.x);
-      object3D.position.z += speedScale * (camera.position.z - object3D.position.z);
-
-      const run = animations.get("Run")(0.05);
-
-      run.play();
+      approachTarget({
+        target: canvasState.camera?.position as THREE.Vector3,
+        object3D,
+        animations,
+      });
     },
   } as unknown as Scene,
 } as Scenes;
+
+function approachTarget({
+  target,
+  object3D,
+  animations,
+  minimumDistance = 7,
+  speedScale = 0.01,
+}: {
+  target: THREE.Vector3;
+  object3D: THREE.Object3D;
+  animations: Map<string, (number: number) => THREE.AnimationAction>;
+  minimumDistance?: number;
+  speedScale?: number;
+}) {
+  const run = animations?.get?.("Run")?.(speedScale);
+
+  if (
+    new Victor(target.x, target.z).distance(
+      new Victor(object3D.position.x, object3D.position.z)
+    ) >= minimumDistance
+  ) {
+    object3D.lookAt(target.x, -1.5, target.z);
+
+    object3D.position.x += speedScale * (target.x - object3D.position.x);
+    object3D.position.z += speedScale * (target.z - object3D.position.z);
+
+    run?.play();
+
+    return;
+  }
+
+  run?.stop();
+}
