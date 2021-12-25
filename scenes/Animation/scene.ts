@@ -7,7 +7,7 @@ import Text from "../../meshes/Text";
 import Model from "../../meshes/Model";
 import stage from "../../stages/nightSkyReflectors";
 
-const randomBreakpoints = getRandomBreakpoints(10, 45);
+let randomBreakpoints: THREE.Object3D[];
 
 export default {
   ...stage,
@@ -17,7 +17,21 @@ export default {
         y: -1.5,
       },
     },
-    object: () => randomBreakpoints,
+    object: async () => {
+      randomBreakpoints = getRandomBreakpoints(
+        10,
+        45,
+        (await Model("./models/gltf/candy_cane/scene.gltf")).object3D
+      );
+
+      const scale = .5
+
+      randomBreakpoints.forEach((breakpoint) => {
+        breakpoint.scale.set(scale, scale, scale);
+      });
+
+      return randomBreakpoints;
+    }, // compartir a un estado global de otras escenas?
   } as unknown as Scene,
   character: {
     properties: {
@@ -29,15 +43,14 @@ export default {
     onSetup({ object3D }: SceneExport) {
       object3D.children[0].rotation.z = Math.PI / 2;
     },
-    onAnimation(
-      { object3D, animations }: SceneExport,
-      canvasState: types.state.CanvasState
-    ) {
-      pursueBreakpoints({
-        breakpoints: randomBreakpoints,
-        object3D,
-        animations,
-      });
+    onAnimation({ object3D, animations }: SceneExport) {
+      if (randomBreakpoints) {
+        pursueBreakpoints({
+          breakpoints: randomBreakpoints,
+          object3D,
+          animations,
+        });
+      }
     },
   } as unknown as Scene,
 } as Scenes;
@@ -48,7 +61,7 @@ export default {
 function getRandomBreakpoints(
   amount: number,
   distance: number,
-  mesh: THREE.Mesh = new THREE.Mesh(
+  mesh: THREE.Object3D = new THREE.Mesh(
     new THREE.SphereBufferGeometry(0.25, 100, 100),
     new THREE.MeshBasicMaterial({
       color: "#f00",
@@ -78,7 +91,7 @@ function pursueBreakpoints({
   object3D,
   animations,
   minimumDistance = 1,
-  speedScale = 0.01,
+  speedScale = 0.1,
 }: {
   breakpoints: THREE.Object3D[];
   object3D: THREE.Object3D;
