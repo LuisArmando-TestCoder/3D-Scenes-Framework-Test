@@ -24,27 +24,6 @@ import jumpingTowers from "./jumpingTowers";
 
 const time = () => new Date().getTime() / 1000;
 
-function getSlopedCircular(index: number, amount: number, distance = 500) {
-  const randomStep = (index / amount) * (Math.PI * 2);
-  const randomCircle = {
-    x: Math.sin(randomStep),
-    z: Math.cos(randomStep),
-  };
-
-  return {
-    x: randomCircle.x * distance,
-    z: randomCircle.z * distance,
-  };
-}
-
-function setEndlessFall(object3D: THREE.Object3D, timeline = gsap.timeline()) {
-  timeline.to(object3D.position, { y: -10, duration: 5 }).call(() => {
-    timeline.set(object3D.position, { y: 10 });
-
-    setEndlessFall(object3D, timeline);
-  });
-}
-
 export default {
   sky: {
     object: () =>

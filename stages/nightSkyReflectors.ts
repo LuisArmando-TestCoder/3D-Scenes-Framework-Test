@@ -84,7 +84,7 @@ export default {
               Math.cos(step) * distance
             );
 
-            return lightGroup;
+            return lightGroup as THREE.Object3D;
           },
         },
       ]);
