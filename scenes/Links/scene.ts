@@ -21,7 +21,7 @@ export default {
     },
     object: async () => await Model("./models/gltf/venus_de_disco/scene.gltf"),
     onAnimation({ object3D }: SceneExport) {
-      object3D.rotation.y += 0.01;
+      object3D.rotation.y += 0.005;
     },
   } as unknown as Scene,
   poem: {
@@ -262,7 +262,7 @@ export default {
         {
           color: "#f00",
           position: new THREE.Vector3(0, 2, 0),
-          distance: 35,
+          distance: 100,
           intensity: 1,
         },
       ]),

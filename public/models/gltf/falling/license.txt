@@ -1,0 +1,11 @@
+Model Information:
+* title:	Falling
+* source:	https://sketchfab.com/3d-models/falling-e541e189566844bd83df450af3744b41
+* author:	DigitalFashionSchool (https://sketchfab.com/digitalfashionschool)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Falling" (https://sketchfab.com/3d-models/falling-e541e189566844bd83df450af3744b41) by DigitalFashionSchool (https://sketchfab.com/digitalfashionschool) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

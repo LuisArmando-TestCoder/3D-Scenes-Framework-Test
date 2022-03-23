@@ -11,48 +11,48 @@ let randomBreakpoints: THREE.Object3D[];
 
 export default {
   ...stage,
-  breakpoints: {
-    properties: {
-      position: {
-        y: -1.5,
-      },
-    },
-    object: async () => {
-      randomBreakpoints = getRandomBreakpoints(
-        10,
-        45,
-        (await Model("./models/gltf/candy_cane/scene.gltf")).object3D
-      );
+  // breakpoints: {
+  //   properties: {
+  //     position: {
+  //       y: -1.5,
+  //     },
+  //   },
+  //   object: async () => {
+  //     randomBreakpoints = getRandomBreakpoints(
+  //       10,
+  //       45,
+  //       (await Model("./models/gltf/candy_cane/scene.gltf")).object3D
+  //     );
 
-      const scale = .5
+  //     const scale = .5
 
-      randomBreakpoints.forEach((breakpoint) => {
-        breakpoint.scale.set(scale, scale, scale);
-      });
+  //     randomBreakpoints.forEach((breakpoint) => {
+  //       breakpoint.scale.set(scale, scale, scale);
+  //     });
 
-      return randomBreakpoints;
-    }, // compartir a un estado global de otras escenas?
-  } as unknown as Scene,
-  character: {
-    properties: {
-      position: {
-        y: -1.5,
-      },
-    },
-    object: () => Model("./models/gltf/fox_minecraft/scene.gltf"),
-    onSetup({ object3D }: SceneExport) {
-      object3D.children[0].rotation.z = Math.PI / 2;
-    },
-    onAnimation({ object3D, animations }: SceneExport) {
-      if (randomBreakpoints) {
-        pursueBreakpoints({
-          breakpoints: randomBreakpoints,
-          object3D,
-          animations,
-        });
-      }
-    },
-  } as unknown as Scene,
+  //     return randomBreakpoints;
+  //   }, // compartir a un estado global de otras escenas?
+  // } as unknown as Scene,
+  // character: {
+  //   properties: {
+  //     position: {
+  //       y: -1.5,
+  //     },
+  //   },
+  //   object: () => Model("./models/gltf/fox_minecraft/scene.gltf"),
+  //   onSetup({ object3D }: SceneExport) {
+  //     object3D.children[0].rotation.z = Math.PI / 2;
+  //   },
+  //   onAnimation({ object3D, animations }: SceneExport) {
+  //     if (randomBreakpoints) {
+  //       pursueBreakpoints({
+  //         breakpoints: randomBreakpoints,
+  //         object3D,
+  //         animations,
+  //       });
+  //     }
+  //   },
+  // } as unknown as Scene,
 } as Scenes;
 
 // Crea una carrera de obstáculos donde cambias el target para que el fox siga los breakpoints
