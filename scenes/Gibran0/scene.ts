@@ -29,7 +29,7 @@ export default {
 
       return consulters.getProceduralGroup([
         {
-          geometry: new THREE.TorusBufferGeometry(5, 0.05, 30, 130),
+          geometry: new THREE.TorusBufferGeometry(7, 0.05, 30, 130),
           material: new THREE.MeshStandardMaterial({
             color: "black",
             side: THREE.DoubleSide,
