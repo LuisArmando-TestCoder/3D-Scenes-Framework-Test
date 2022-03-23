@@ -23,21 +23,33 @@ export default {
       rotation: new THREE.Vector3(Math.PI, 0, 0),
     },
     object() {
-      const geometry = new THREE.BoxBufferGeometry(0.1, 0.01, 0.1);
-      const material = new THREE.MeshStandardMaterial({ color: "red" });
       const squareSpiralPositions = getSquareSpiralPositions(1024);
       const abyssStretch = 2;
-      const space = .01;
+      const space = 0.01;
 
       return consulters.getProceduralGroup([
         {
-          geometry,
-          material,
+          geometry: new THREE.TorusBufferGeometry(5, 0.05, 30, 130),
+          material: new THREE.MeshStandardMaterial({
+            color: "black",
+            side: THREE.DoubleSide,
+          }),
+          getIntersectionMesh(_, mesh) {
+            mesh.rotation.x = Math.PI / 2;
+            mesh.position.y = -3;
+
+            return mesh;
+          },
+          dimensions: [1],
+        },
+        {
+          geometry: new THREE.BoxBufferGeometry(0.1, 0.01, 0.1),
+          material: new THREE.MeshStandardMaterial({ color: "red" }),
           getIntersectionMesh([index], mesh) {
             mesh.position.set(
               squareSpiralPositions[index].x * space,
               -Math.atan(index * space) * abyssStretch,
-              squareSpiralPositions[index].y * space,
+              squareSpiralPositions[index].y * space
             );
 
             return mesh as Object3D;
@@ -53,10 +65,18 @@ export default {
       return audioProperties;
     },
     onAnimation: ({ object3D, exported: { frequencies } }: SceneExport) => {
-    //   object3D.rotation.z -= 0.01;
-      object3D.children.forEach((mesh, index) => {
-        mesh.scale.y = frequencies?.[index];
+      (
+        object3D.children as any as THREE.Mesh<
+          THREE.BufferGeometry,
+          THREE.Material | THREE.Material[]
+        >[]
+      ).forEach((mesh: THREE.Mesh, index: number) => {
+        if (mesh.geometry instanceof THREE.TorusGeometry) {
+          return;
+        }
 
+        mesh.rotation.y -= 0.005;
+        mesh.scale.y = frequencies?.[index];
         mesh.castShadow = !!mesh.scale.y;
         mesh.visible = !!mesh.scale.y;
       });
@@ -80,32 +100,32 @@ export default {
       );
     },
   } as unknown as Scene,
-//   colorfullFloor: {
-//     object: () => {
-//       const tilesSize = 10;
-//       const amount = 100;
-//       const spacing = 0.01;
+  //   colorfullFloor: {
+  //     object: () => {
+  //       const tilesSize = 10;
+  //       const amount = 100;
+  //       const spacing = 0.01;
 
-//       return consulters.getProceduralGroup([
-//         {
-//           geometry: new THREE.BoxBufferGeometry(tilesSize, 0.01, tilesSize),
-//           material: new THREE.MeshPhongMaterial({
-//             color: "#f1bff2",
-//             specular: "#fff",
-//             shininess: 30,
-//           }),
-//           dimensions: [amount, amount],
-//           getIntersectionMesh([x, y], mesh) {
-//             mesh.position.set(
-//               (x - amount / 2) * tilesSize * (1 + spacing),
-//               -5,
-//               (y - amount / 2) * tilesSize * (1 + spacing)
-//             );
+  //       return consulters.getProceduralGroup([
+  //         {
+  //           geometry: new THREE.BoxBufferGeometry(tilesSize, 0.01, tilesSize),
+  //           material: new THREE.MeshPhongMaterial({
+  //             color: "#f1bff2",
+  //             specular: "#fff",
+  //             shininess: 30,
+  //           }),
+  //           dimensions: [amount, amount],
+  //           getIntersectionMesh([x, y], mesh) {
+  //             mesh.position.set(
+  //               (x - amount / 2) * tilesSize * (1 + spacing),
+  //               -5,
+  //               (y - amount / 2) * tilesSize * (1 + spacing)
+  //             );
 
-//             return mesh;
-//           },
-//         },
-//       ]);
-//     },
-//   } as unknown as Scene,
+  //             return mesh;
+  //           },
+  //         },
+  //       ]);
+  //     },
+  //   } as unknown as Scene,
 } as Scenes;
